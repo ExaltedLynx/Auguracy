@@ -1,0 +1,7 @@
+// 1.21.4	2025-03-24T15:44:10.8198015	Model Definitions - auguracy
+d687f95d94c61b3afe33140191ddd0241435336c assets/auguracy/blockstates/mana_flower.json
+3b3ac2a30df08ac2a267c891e112db4bad6e13ec assets/auguracy/items/mana_flower.json
+fab6a0eda3b581e88c9dc42ca71427a920ca8a28 assets/auguracy/items/mana_shard.json
+62033681c8d58623d3d8ee4651da2405ca30635c assets/auguracy/models/block/mana_flower.json
+b3568f36e7da4398e3c3c98a9d49338303d6a18b assets/auguracy/models/item/mana_flower.json
+3a4fa484c2174b8c805812abfae2535dc8d781a1 assets/auguracy/models/item/mana_shard.json
