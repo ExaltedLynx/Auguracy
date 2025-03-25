@@ -6,11 +6,8 @@ import net.exaltedlynx.auguracy.setup.AuguracyItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -24,8 +21,6 @@ public class AuguracyModelProvider extends ModelProvider
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
     {
-
-
         createCrossBlockWithDefaultItem(blockModels, AuguracyBlocks.MANA_FLOWER.get(), BlockModelGenerators.PlantType.NOT_TINTED,"cutout");
 
         itemModels.generateFlatItem(AuguracyItems.MANA_SHARD.get(), ModelTemplates.FLAT_ITEM);

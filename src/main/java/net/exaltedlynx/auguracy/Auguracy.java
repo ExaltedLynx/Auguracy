@@ -1,10 +1,9 @@
 package net.exaltedlynx.auguracy;
 
+import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.exaltedlynx.auguracy.setup.AuguracyCreativeTab;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -19,7 +18,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 @Mod(Auguracy.MODID)
@@ -44,6 +42,8 @@ public class Auguracy
 
         AuguracyBlocks.register(modEventBus);
         AuguracyItems.register(modEventBus);
+
+        AuguracyAttachments.register(modEventBus);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
