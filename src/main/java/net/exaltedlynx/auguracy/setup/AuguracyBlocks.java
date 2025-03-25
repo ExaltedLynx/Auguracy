@@ -5,8 +5,11 @@ import net.exaltedlynx.auguracy.common.blocks.ManaFlower;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -17,7 +20,8 @@ public class AuguracyBlocks
 {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Auguracy.MODID);
 
-    public static final DeferredBlock<Block> MANA_FLOWER = registerBlock("mana_flower", ManaFlower::new, BlockBehaviour.Properties.ofFullCopy(Blocks.POPPY));
+    public static final DeferredBlock<Block> MANA_FLOWER = registerBlock("mana_flower", factory -> new ManaFlower(MobEffects.GLOWING, 5, factory),
+            BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ).pushReaction(PushReaction.DESTROY));
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties, ? extends T> block, BlockBehaviour.Properties properties)
     {

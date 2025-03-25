@@ -2,6 +2,9 @@
   "block.auguracy.mana_flower": "Mana Flower",
 
   "item.auguracy.mana_shard": "Mana Shard",
+  "item.auguracy.divine_wand": "Divine Wand",
+  "item.auguracy.spell_scroll": "Spell Scroll",
+  "item.auguracy.spell_crystal": "Spell Crystal",
 
   "auguracy.creativetab": "Auguracy"
 }

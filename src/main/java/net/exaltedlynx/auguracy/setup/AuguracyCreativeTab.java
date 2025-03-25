@@ -4,8 +4,11 @@ import net.exaltedlynx.auguracy.Auguracy;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -18,8 +21,13 @@ public class AuguracyCreativeTab
             .icon(() -> new ItemStack(AuguracyBlocks.MANA_FLOWER))
             .title(Component.translatable("auguracy.creativetab"))
             .displayItems((itemDisplayParameters, output) -> {
-                output.accept(AuguracyBlocks.MANA_FLOWER);
-                output.accept(AuguracyItems.MANA_SHARD);
+                for (DeferredHolder<Block, ? extends Block> entry : AuguracyBlocks.BLOCKS.getEntries()) {
+                    output.accept(entry.get());
+                }
+
+                for (DeferredHolder<Item, ? extends Item> entry : AuguracyItems.ITEMS.getEntries()) {
+                    output.accept(entry.get());
+                }
             })
             .build()
     );
