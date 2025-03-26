@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy;
 
+import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.exaltedlynx.auguracy.setup.AuguracyCreativeTab;
@@ -24,7 +25,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 public class Auguracy
 {
     public static final String MODID = "auguracy";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -68,7 +69,7 @@ public class Auguracy
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-
+            NeoForge.EVENT_BUS.register(GuiEventHandler.class);
         }
     }
 }
