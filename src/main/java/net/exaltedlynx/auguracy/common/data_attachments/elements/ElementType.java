@@ -6,5 +6,12 @@ public enum ElementType
     EARTH,
     WATER,
     WIND,
-    CORRUPTION
+    CORRUPTION;
+
+    private static final ElementType[] VALUES = ElementType.values();
+
+    public static ElementType fromInt(int x)
+    {
+        return VALUES[x];
+    }
 }

@@ -14,7 +14,7 @@ public class GuiEventHandler
         Screen screen = event.getScreen();
         if(screen instanceof InventoryScreen)
         {
-            new ElementsScreen(Component.literal("Test")).render(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
+            new ElementsScreen().renderElementLevels(event.getGuiGraphics(), event.getMouseX(), event.getMouseY(), event.getPartialTick());
         }
     }
 }

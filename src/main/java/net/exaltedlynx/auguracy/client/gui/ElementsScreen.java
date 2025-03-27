@@ -1,40 +1,56 @@
 package net.exaltedlynx.auguracy.client.gui;
 
 import net.exaltedlynx.auguracy.Auguracy;
+import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
+import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementLevels;
+import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.spi.LoggingEventBuilder;
 
-public class ElementsScreen extends Screen
+public class ElementsScreen
 {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "textures/gui/elements_gui.png");
     private static final int SPRITE_WIDTH = 89;
     private static final int SPRITE_HEIGHT = 42;
-    private int xPos;
-    private int yPos;
+    private static final int OFFSET_X = -1;
+    private static final int OFFSET_Y = -250;
+    Minecraft minecraft = Minecraft.getInstance();
 
-    protected ElementsScreen(Component title) {
-        super(title);
-    }
+    public ElementsScreen() { }
 
-    @Override
-    protected void init() {
-        xPos = (this.width - SPRITE_WIDTH) / 2;
-        yPos = (this.height - SPRITE_HEIGHT) / 2;
-        LoggingEventBuilder builder = Auguracy.LOGGER.atDebug();
-        builder.log(xPos + ", " + yPos);
-        builder.log();
-    }
-
-    @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        xPos = (this.width - SPRITE_WIDTH) / 2;
-        yPos = (this.height - SPRITE_HEIGHT) / 2;
+    public void renderElementLevels(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        int xPos = (minecraft.getWindow().getGuiScaledWidth() + OFFSET_X) / 2;
+        int yPos = (minecraft.getWindow().getGuiScaledHeight() + OFFSET_Y) / 2;
         graphics.blit(RenderType::guiTextured, TEXTURE, xPos, yPos, 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, 256, 256);
+
+        ElementLevels elementLevels = minecraft.player.getData(AuguracyAttachments.ELEMENT_LEVELS);
+        int offset = 24;
+        for(int i = 0; i < 5; i++)
+        {
+            int level = elementLevels.getLevel(ElementType.fromInt(i));;
+            renderLvlNumber(graphics, offset, String.valueOf(level));
+            offset += 32;
+        }
+    }
+
+    private void renderLvlNumber(GuiGraphics graphics, int offset, String level)
+    {
+        Font font = minecraft.font;
+        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+        int screenHeight = minecraft.getWindow().getGuiScaledHeight();
+        int width = (screenWidth + offset - font.width(level)) / 2;
+        int height = screenHeight - 268;
+
+        graphics.drawString(font, level, width + 1, height, 0, false);
+        graphics.drawString(font, level, width - 1, height, 0, false);
+        graphics.drawString(font, level, width, height + 1, 0, false);
+        graphics.drawString(font, level, width, height - 1, 0, false);
+        graphics.drawString(font, level, width, height, 16777215, false);
     }
 }
