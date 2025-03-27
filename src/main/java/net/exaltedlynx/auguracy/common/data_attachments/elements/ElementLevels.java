@@ -1,5 +1,8 @@
 package net.exaltedlynx.auguracy.common.data_attachments.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -7,6 +10,9 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 
 public class ElementLevels
@@ -19,6 +25,12 @@ public class ElementLevels
     private final int[] levels;
     private final int[] exp;
 
+    public static final Codec<ElementLevels> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            Codec.INT_STREAM.fieldOf("levels").forGetter(ElementLevels::getLevelsAsStream),
+            Codec.INT_STREAM.fieldOf("exp").forGetter(ElementLevels::getExpAsStream)
+            ).apply(inst, ElementLevels::new)
+    );
+
     public ElementLevels()
     {
         levels = new int[] {0, 0, 0, 0, 0};
@@ -28,6 +40,11 @@ public class ElementLevels
     private ElementLevels(int[] levels, int[] exp) {
         this.levels = levels;
         this.exp = exp;
+    }
+
+    private ElementLevels(IntStream levelsStream, IntStream expStream) {
+        levels = levelsStream.toArray();
+        exp = expStream.toArray();
     }
 
     public int getLevel(ElementType type)
@@ -61,6 +78,9 @@ public class ElementLevels
 
         }
     }
+
+    private IntStream getLevelsAsStream() { return Arrays.stream(levels); }
+    private IntStream getExpAsStream() {return Arrays.stream(exp); }
 
     public static IAttachmentSerializer<CompoundTag, ElementLevels> getSerializer()
     {

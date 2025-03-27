@@ -7,13 +7,10 @@ import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.spi.LoggingEventBuilder;
 
-public class ElementsScreen
+public class ElementsGui
 {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "textures/gui/elements_gui.png");
     private static final int SPRITE_WIDTH = 89;
@@ -22,7 +19,7 @@ public class ElementsScreen
     private static final int OFFSET_Y = -250;
     Minecraft minecraft = Minecraft.getInstance();
 
-    public ElementsScreen() { }
+    public ElementsGui() { }
 
     public void renderElementLevels(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int xPos = (minecraft.getWindow().getGuiScaledWidth() + OFFSET_X) / 2;
