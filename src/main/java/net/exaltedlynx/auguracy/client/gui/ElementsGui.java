@@ -30,7 +30,7 @@ public class ElementsGui
         int offset = 24;
         for(int i = 0; i < 5; i++)
         {
-            int level = elementLevels.getLevel(ElementType.fromInt(i));;
+            int level = elementLevels.getLevel(ElementType.fromInt(i));
             renderLvlNumber(graphics, offset, String.valueOf(level));
             offset += 32;
         }

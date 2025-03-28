@@ -15,7 +15,7 @@ public class AuguracyAttachments
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, Auguracy.MODID);
 
     public static final Supplier<AttachmentType<ElementLevels>> ELEMENT_LEVELS = ATTACHMENT_TYPES.register(
-            "element_levels", () -> AttachmentType.builder(ElementLevels::new).serialize(ElementLevels.getSerializer()).copyOnDeath().build()
+            "element_levels", () -> AttachmentType.builder(ElementLevels::new).serialize(ElementLevels.CODEC).copyOnDeath().build()
     );
 
     public static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(

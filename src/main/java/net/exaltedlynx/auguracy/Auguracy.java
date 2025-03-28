@@ -2,6 +2,7 @@ package net.exaltedlynx.auguracy;
 
 import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
+import net.exaltedlynx.auguracy.common.network.NetworkRegister;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.exaltedlynx.auguracy.setup.AuguracyCreativeTab;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
@@ -45,6 +46,8 @@ public class Auguracy
         AuguracyItems.register(modEventBus);
 
         AuguracyAttachments.register(modEventBus);
+
+        modEventBus.addListener(NetworkRegister::register);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
