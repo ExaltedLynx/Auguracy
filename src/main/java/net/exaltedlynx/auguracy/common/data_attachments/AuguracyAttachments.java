@@ -1,8 +1,8 @@
 package net.exaltedlynx.auguracy.common.data_attachments;
 
-import com.mojang.serialization.Codec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementLevels;
+import net.exaltedlynx.auguracy.common.data_attachments.mana.Mana;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -18,8 +18,8 @@ public class AuguracyAttachments
             "element_levels", () -> AttachmentType.builder(ElementLevels::new).serialize(ElementLevels.CODEC).copyOnDeath().build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> MANA = ATTACHMENT_TYPES.register(
-            "mana", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build()
+    public static final Supplier<AttachmentType<Mana>> MANA = ATTACHMENT_TYPES.register(
+            "mana", () -> AttachmentType.builder(Mana::new).serialize(Mana.CODEC).copyOnDeath().build()
     );
 
     public static void register(IEventBus eventBus)

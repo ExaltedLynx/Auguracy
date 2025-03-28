@@ -3,7 +3,9 @@ package net.exaltedlynx.auguracy.common.data_attachments;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementLevels;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
+import net.exaltedlynx.auguracy.common.data_attachments.mana.Mana;
 import net.exaltedlynx.auguracy.common.network.SyncElementLevelsPacket;
+import net.exaltedlynx.auguracy.common.network.SyncManaPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +26,9 @@ public class AttachmentsEventHandler
         if(!player.level().isClientSide())
         {
             ElementLevels levels = player.getData(AuguracyAttachments.ELEMENT_LEVELS);
+            Mana mana = player.getData(AuguracyAttachments.MANA);
             PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncElementLevelsPacket(levels));
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncManaPacket(mana));
         }
     }
 

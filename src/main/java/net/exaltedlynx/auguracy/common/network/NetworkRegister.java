@@ -11,5 +11,6 @@ public class NetworkRegister
     {
         final PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(SyncElementLevelsPacket.TYPE, SyncElementLevelsPacket.STREAM_CODEC, SyncElementLevelsPacket::handler);
+        registrar.playToClient(SyncManaPacket.TYPE, SyncManaPacket.STREAM_CODEC, SyncManaPacket::handler);
     }
 }

@@ -6,6 +6,8 @@ import net.exaltedlynx.auguracy.common.network.NetworkRegister;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.exaltedlynx.auguracy.setup.AuguracyCreativeTab;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
+import net.exaltedlynx.auguracy.setup.AuguracySpells;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -63,6 +65,12 @@ public class Auguracy
     public void onServerStarting(ServerStartingEvent event)
     {
 
+    }
+
+    @SubscribeEvent
+    static void registerRegistries(NewRegistryEvent event)
+    {
+        event.register(AuguracySpells.SPELL_REGISTRY);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
