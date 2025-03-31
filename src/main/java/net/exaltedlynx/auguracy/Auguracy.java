@@ -50,6 +50,7 @@ public class Auguracy
         AuguracyAttachments.register(modEventBus);
 
         modEventBus.addListener(NetworkRegister::register);
+        modEventBus.addListener(this::registerRegistries);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -67,8 +68,7 @@ public class Auguracy
 
     }
 
-    @SubscribeEvent
-    static void registerRegistries(NewRegistryEvent event)
+    public void registerRegistries(NewRegistryEvent event)
     {
         event.register(AuguracySpells.SPELL_REGISTRY);
     }
