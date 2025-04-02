@@ -4,11 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
-import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.Optional;
 
 public abstract class Spell
 {
@@ -21,7 +18,7 @@ public abstract class Spell
             Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
     ).apply(inst, AuguracySpells::getSpellFromName));
 
-    public boolean Cast(Player caster) {
+    public boolean cast(Player caster) {
         if(canCast(caster))
         {
             caster.getData(AuguracyAttachments.MANA).subtract(manaCost, caster);

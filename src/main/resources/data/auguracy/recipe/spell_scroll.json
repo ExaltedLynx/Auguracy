@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "auguracy:mana_shard",
+    "minecraft:paper"
+  ],
+  "result": {
+    "count": 1,
+    "id": "auguracy:spell_scroll"
+  }
+}

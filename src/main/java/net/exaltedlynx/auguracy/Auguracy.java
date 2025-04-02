@@ -3,11 +3,7 @@ package net.exaltedlynx.auguracy;
 import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.network.NetworkRegister;
-import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
-import net.exaltedlynx.auguracy.setup.AuguracyCreativeTab;
-import net.exaltedlynx.auguracy.setup.AuguracyItems;
-import net.exaltedlynx.auguracy.setup.AuguracySpells;
-import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.exaltedlynx.auguracy.setup.*;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -23,6 +19,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 @Mod(Auguracy.MODID)
 public class Auguracy
@@ -34,23 +31,17 @@ public class Auguracy
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Auguracy(IEventBus modEventBus, ModContainer modContainer)
     {
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
-
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+        modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::registerRegistries);
+        modEventBus.addListener(NetworkRegister::register);
 
         AuguracyCreativeTab.register(modEventBus);
-
+        AuguracySpells.register(modEventBus);
+        AuguracyDataComponents.register(modEventBus);
+        AuguracyAttachments.register(modEventBus);
         AuguracyBlocks.register(modEventBus);
         AuguracyItems.register(modEventBus);
-
-        AuguracyAttachments.register(modEventBus);
-
-        modEventBus.addListener(NetworkRegister::register);
-        modEventBus.addListener(this::registerRegistries);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -61,7 +52,6 @@ public class Auguracy
 
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {

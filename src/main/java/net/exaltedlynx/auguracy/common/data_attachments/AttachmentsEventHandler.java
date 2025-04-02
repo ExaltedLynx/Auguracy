@@ -33,18 +33,6 @@ public class AttachmentsEventHandler
     }
 
     @SubscribeEvent
-    public static void onPlayerChangeGameMode(PlayerEvent.PlayerChangeGameModeEvent event)
-    {
-        Player player = event.getEntity();
-        if(!player.level().isClientSide() && event.getNewGameMode().isCreative())
-        {
-            player.setData(AuguracyAttachments.ELEMENT_LEVELS, new ElementLevels());
-            ElementLevels levels = player.getData(AuguracyAttachments.ELEMENT_LEVELS);
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncElementLevelsPacket(levels));
-        }
-    }
-
-    @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event)
     {
         Player player = event.getPlayer();
