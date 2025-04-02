@@ -4,6 +4,7 @@ import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.network.NetworkRegister;
 import net.exaltedlynx.auguracy.setup.*;
+import net.neoforged.fml.event.IModBusEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -35,6 +36,7 @@ public class Auguracy
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerRegistries);
         modEventBus.addListener(NetworkRegister::register);
+        modEventBus.addListener(GuiEventHandler::registerHUDOverlays);
 
         AuguracyCreativeTab.register(modEventBus);
         AuguracySpells.register(modEventBus);
@@ -70,7 +72,7 @@ public class Auguracy
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            NeoForge.EVENT_BUS.register(GuiEventHandler.class);
+            NeoForge.EVENT_BUS.addListener(GuiEventHandler::onPlayerInventoryGuiInit);
         }
     }
 }
