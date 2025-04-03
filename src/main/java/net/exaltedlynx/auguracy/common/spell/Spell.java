@@ -36,7 +36,7 @@ public abstract class Spell
 
     private boolean canCast(Player caster)
     {
-        return lvlReq < caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost < caster.getData(AuguracyAttachments.MANA).getCurrentMana();
+        return lvlReq <= caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost <= caster.getData(AuguracyAttachments.MANA).getCurrentMana();
     }
 
     public String getName() { return name; }

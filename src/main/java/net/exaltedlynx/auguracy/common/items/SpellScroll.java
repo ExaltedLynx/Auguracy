@@ -1,6 +1,7 @@
 package net.exaltedlynx.auguracy.common.items;
 
 
+import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
@@ -32,7 +33,6 @@ public class SpellScroll extends Item implements IItemExtension
         {
             Spell spell = heldItem.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
             spell.cast(player);
-
         }
         return InteractionResult.PASS;
     }
