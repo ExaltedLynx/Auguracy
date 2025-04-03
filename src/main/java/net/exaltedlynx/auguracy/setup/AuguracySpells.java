@@ -29,7 +29,6 @@ public class AuguracySpells
         { name = "empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 0; }
         @Override
         protected void onCast(Player caster) {
-            Auguracy.LOGGER.atDebug().log("casted spell");
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
         }
     });
