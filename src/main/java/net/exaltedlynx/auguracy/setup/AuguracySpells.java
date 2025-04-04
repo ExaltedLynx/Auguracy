@@ -28,8 +28,9 @@ public class AuguracySpells
     public static final Supplier<Spell> EMPTY = SPELLS.register("empty_spell", () -> new Spell() {
         { name = "empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
         @Override
-        protected void onCast(Player caster) {
+        protected boolean onCast(Player caster) {
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
+            return true;
         }
     });
 

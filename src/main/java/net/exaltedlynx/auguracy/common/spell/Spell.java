@@ -19,20 +19,18 @@ public abstract class Spell
     ).apply(inst, AuguracySpells::getSpellFromName));
 
     public boolean cast(Player caster) {
+        boolean casted = false;
         if(canCast(caster))
         {
-            caster.getData(AuguracyAttachments.MANA).subtract(manaCost, caster);
-            if(this instanceof ICorruptable corruptedSpell)
-                corruptedSpell.corruptedCast(caster);
+            if(this instanceof ICorruptable corruptedSpell && corruptedSpell.isCorrupted())
+                casted = corruptedSpell.corruptedCast(caster);
             else
-                onCast(caster);
-
-            return true;
+                casted = onCast(caster);
         }
-        return false;
+        return casted;
     }
 
-    protected abstract void onCast(Player caster);
+    protected abstract boolean onCast(Player caster);
 
     private boolean canCast(Player caster)
     {
