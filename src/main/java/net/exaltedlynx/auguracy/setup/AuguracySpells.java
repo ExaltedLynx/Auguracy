@@ -26,7 +26,7 @@ public class AuguracySpells
 
     //fallback in case a spell is not found
     public static final Supplier<Spell> EMPTY = SPELLS.register("empty_spell", () -> new Spell() {
-        { name = "empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 0; }
+        { name = "empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
         @Override
         protected void onCast(Player caster) {
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);

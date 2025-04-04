@@ -25,7 +25,7 @@ public class ManaBar
 
         Mana mana = minecraft.player.getData(AuguracyAttachments.MANA);
         int currWidth = MANA_BAR_WIDTH;
-        currWidth *= (int) ((float) mana.getCurrentMana() / mana.getMaxMana());
+        currWidth *= ((float) mana.getCurrentMana() / mana.getMaxMana());
         String currMana = String.valueOf(mana.getCurrentMana());
         String maxMana = String.valueOf(mana.getMaxMana());
         graphics.blit(RenderType::guiTextured, TEXTURE, xPos, yPos, 0, 0, BORDER_WIDTH, BORDER_HEIGHT, 256, 256);

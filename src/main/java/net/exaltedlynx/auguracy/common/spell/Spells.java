@@ -20,7 +20,7 @@ public class Spells
 
         @Override
         protected void onCast(Player caster) {
-
+            
         }
 
         @Override

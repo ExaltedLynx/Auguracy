@@ -13,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = Auguracy.MODID)
@@ -23,7 +24,7 @@ public class AttachmentsEventHandler
     {
         //Attaches new instance of attachment on first login of the player
         Player player = event.getEntity();
-        if(!player.level().isClientSide())
+        if(!player.level().isClientSide)
         {
             ElementLevels levels = player.getData(AuguracyAttachments.ELEMENT_LEVELS);
             Mana mana = player.getData(AuguracyAttachments.MANA);
@@ -36,13 +37,25 @@ public class AttachmentsEventHandler
     public static void onBlockBreak(BlockEvent.BreakEvent event)
     {
         Player player = event.getPlayer();
-        if(!player.level().isClientSide())
+        if(!player.level().isClientSide)
         {
             if(event.getState().is(BlockTags.DIRT))
             {
                 ElementLevels levels = player.getData(AuguracyAttachments.ELEMENT_LEVELS);
                 levels.addExp(ElementType.EARTH, 1, player);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Pre event)
+    {
+        Player player = event.getEntity();
+        if(!player.level().isClientSide && player.tickCount % 20 == 0)
+        {
+            Mana mana = player.getData(AuguracyAttachments.MANA);
+            if(mana.getCurrentMana() < mana.getMaxMana())
+                mana.add(1, player);
         }
     }
 }

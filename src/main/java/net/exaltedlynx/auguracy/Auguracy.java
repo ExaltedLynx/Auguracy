@@ -4,7 +4,6 @@ import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.network.NetworkRegister;
 import net.exaltedlynx.auguracy.setup.*;
-import net.neoforged.fml.event.IModBusEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
