@@ -1,6 +1,7 @@
 package net.exaltedlynx.auguracy.common.spell;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
@@ -14,7 +15,7 @@ public abstract class Spell
     protected int lvlReq;
     protected int manaCost;
 
-    public static final Codec<Spell> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    protected static MapCodec<Spell> SIMPLE_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
     ).apply(inst, AuguracySpells::getSpellFromName));
 
@@ -38,4 +39,6 @@ public abstract class Spell
     }
 
     public String getName() { return name; }
+
+    public abstract MapCodec<? extends Spell> getCodec();
 }

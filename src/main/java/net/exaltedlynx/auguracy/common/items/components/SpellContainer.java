@@ -15,11 +15,11 @@ public record SpellContainer(Spell spell)
     public static final Supplier<SpellContainer> EMPTY = () -> new SpellContainer(AuguracySpells.EMPTY.get());
 
     public static final Codec<SpellContainer> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Spell.CODEC.fieldOf("spell").forGetter(SpellContainer::spell))
+            Spell.getCodec().fieldOf("spell").forGetter(SpellContainer::spell))
         .apply(inst, SpellContainer::new));
 
     public static final StreamCodec<ByteBuf, SpellContainer> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.fromCodec(Spell.CODEC),
+            ByteBufCodecs.fromCodec(Spell.getCodec()),
             SpellContainer::spell,
             SpellContainer::new
     );

@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy.setup;
 
+import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.common.spell.Spell;
@@ -18,9 +19,11 @@ import java.util.function.Supplier;
 
 public class AuguracySpells
 {
-    public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spells"));
+    private static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spells"));
     public static final Registry<Spell> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, Auguracy.MODID);
+
+    //TODO make dispatch codec registry for spells
 
     public static final Supplier<Spell> DIG = SPELLS.register("dig_spell", () -> new DigSpell("dig", ElementType.EARTH, 1, 2));
 
@@ -31,6 +34,11 @@ public class AuguracySpells
         protected boolean onCast(Player caster) {
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
             return true;
+        }
+
+        @Override
+        public MapCodec<? extends Spell> getCodec() {
+            return Spell.SIMPLE_CODEC;
         }
     });
 
