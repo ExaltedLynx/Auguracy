@@ -31,14 +31,13 @@ public class Spells
         private int destroyProgress;
         private int ticksUntilNextProgress;
 
-        private final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Spell.SIMPLE_CODEC,
-                Tool.CODEC.fieldOf("tool").forGetter(DigSpell::getTool),
-                Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
-                Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
-                Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress)
-        ).apply(inst, DigSpell::initDigSpell));
-
+        private static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
+                inst.group(
+                        Tool.CODEC.fieldOf("tool").forGetter(DigSpell::getTool),
+                        Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
+                        Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
+                        Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress)
+                )).apply(inst, DigSpell::initDigSpell));
 
         public DigSpell(String name, ElementType type, int lvlReq, int manaCost)
         {
@@ -46,6 +45,16 @@ public class Spells
             this.type = type;
             this.lvlReq = lvlReq;
             this.manaCost = manaCost;
+        }
+
+        public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress)
+        {
+            DigSpell spell = (DigSpell) AuguracySpells.getSpellFromName(name);
+            spell.toolComponent = tool;
+            spell.range = range;
+            spell.destroyProgress = destroyProgress;
+            spell.ticksUntilNextProgress = ticksUntilNextProgress;
+            return spell;
         }
 
         @Override
@@ -122,16 +131,6 @@ public class Spells
         public int getTicksUntilNextProgress()
         {
             return ticksUntilNextProgress;
-        }
-
-        public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress)
-        {
-            DigSpell spell = (DigSpell) AuguracySpells.getSpellFromName(name);
-            spell.toolComponent = tool;
-            spell.range = range;
-            spell.destroyProgress = destroyProgress;
-            spell.ticksUntilNextProgress = ticksUntilNextProgress;
-            return spell;
         }
 
         @Override

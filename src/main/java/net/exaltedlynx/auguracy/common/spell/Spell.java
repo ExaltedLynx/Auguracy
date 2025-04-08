@@ -1,5 +1,8 @@
 package net.exaltedlynx.auguracy.common.spell;
 
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
+import com.mojang.datafixers.types.Func;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -7,6 +10,8 @@ import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.function.Function;
 
 public abstract class Spell
 {
@@ -18,6 +23,10 @@ public abstract class Spell
     protected static MapCodec<Spell> SIMPLE_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
     ).apply(inst, AuguracySpells::getSpellFromName));
+
+    protected static <S extends Spell> Products.P1<Mu<S>, String> startSpellCodec(RecordCodecBuilder.Instance<S> instance) {
+        return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName));
+    }
 
     public boolean cast(Player caster) {
         boolean casted = false;
@@ -40,5 +49,5 @@ public abstract class Spell
 
     public String getName() { return name; }
 
-    public abstract MapCodec<? extends Spell> getCodec();
+    protected abstract MapCodec<? extends Spell> getCodec();
 }

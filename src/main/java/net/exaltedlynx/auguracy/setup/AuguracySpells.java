@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy.setup;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
@@ -23,8 +24,6 @@ public class AuguracySpells
     public static final Registry<Spell> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, Auguracy.MODID);
 
-    //TODO make dispatch codec registry for spells
-
     public static final Supplier<Spell> DIG = SPELLS.register("dig_spell", () -> new DigSpell("dig", ElementType.EARTH, 1, 2));
 
     //fallback in case a spell is not found
@@ -37,8 +36,8 @@ public class AuguracySpells
         }
 
         @Override
-        public MapCodec<? extends Spell> getCodec() {
-            return Spell.SIMPLE_CODEC;
+        protected MapCodec<? extends Spell> getCodec() {
+            return SIMPLE_CODEC;
         }
     });
 
@@ -51,7 +50,6 @@ public class AuguracySpells
         }
         return EMPTY.get();
     }
-
     public static void register(IEventBus eventBus)
     {
         SPELLS.register(eventBus);
