@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.ClipContext;
@@ -31,7 +32,7 @@ public class Spells
         private int destroyProgress;
         private int ticksUntilNextProgress;
 
-        private static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
+        public static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
                 inst.group(
                         Tool.CODEC.fieldOf("tool").forGetter(DigSpell::getTool),
                         Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
@@ -45,6 +46,7 @@ public class Spells
             this.type = type;
             this.lvlReq = lvlReq;
             this.manaCost = manaCost;
+            toolComponent = Items.IRON_PICKAXE.components().get(DataComponents.TOOL);
         }
 
         public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress)
@@ -134,7 +136,7 @@ public class Spells
         }
 
         @Override
-        public MapCodec<? extends Spell> getCodec() {
+        protected MapCodec<? extends Spell> getCodec() {
             return CODEC;
         }
     }

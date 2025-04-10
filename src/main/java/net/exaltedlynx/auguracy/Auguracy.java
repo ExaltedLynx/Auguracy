@@ -32,17 +32,17 @@ public class Auguracy
     public Auguracy(IEventBus modEventBus, ModContainer modContainer)
     {
         NeoForge.EVENT_BUS.register(this);
-        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerRegistries);
+        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(NetworkRegister::register);
         modEventBus.addListener(GuiEventHandler::registerHUDOverlays);
 
         AuguracyCreativeTab.register(modEventBus);
-        AuguracySpells.register(modEventBus);
         AuguracyDataComponents.register(modEventBus);
         AuguracyAttachments.register(modEventBus);
         AuguracyBlocks.register(modEventBus);
         AuguracyItems.register(modEventBus);
+        AuguracySpells.register(modEventBus);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -62,6 +62,7 @@ public class Auguracy
     public void registerRegistries(NewRegistryEvent event)
     {
         event.register(AuguracySpells.SPELL_REGISTRY);
+        event.register(AuguracySpells.SPELL_TYPES_REGISTRY);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

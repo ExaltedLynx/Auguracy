@@ -1,6 +1,5 @@
 package net.exaltedlynx.auguracy.setup;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
@@ -24,11 +23,15 @@ public class AuguracySpells
     public static final Registry<Spell> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, Auguracy.MODID);
 
-    public static final Supplier<Spell> DIG = SPELLS.register("dig_spell", () -> new DigSpell("dig", ElementType.EARTH, 1, 2));
+    private static final ResourceKey<Registry<MapCodec<? extends Spell>>> SPELL_TYPES_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spell_types"));
+    public static final Registry<MapCodec<? extends Spell>> SPELL_TYPES_REGISTRY = new RegistryBuilder<>(SPELL_TYPES_KEY).sync(true).create();
+    public static final DeferredRegister<MapCodec<? extends Spell>> SPELL_TYPES = DeferredRegister.create(SPELL_TYPES_REGISTRY, Auguracy.MODID);
+
+    public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.CODEC);
 
     //fallback in case a spell is not found
-    public static final Supplier<Spell> EMPTY = SPELLS.register("empty_spell", () -> new Spell() {
-        { name = "empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
+    public static final Supplier<Spell> EMPTY = registerSpell("empty_spell", () -> new Spell() {
+        { name = "Empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
         @Override
         protected boolean onCast(Player caster) {
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
@@ -39,7 +42,13 @@ public class AuguracySpells
         protected MapCodec<? extends Spell> getCodec() {
             return SIMPLE_CODEC;
         }
-    });
+    }, Spell.SIMPLE_CODEC);
+
+    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, MapCodec<S> codec)
+    {
+        SPELL_TYPES.register(name, () -> codec);
+        return SPELLS.register(name, spell);
+    }
 
     public static Spell getSpellFromName(String spellName)
     {
@@ -53,5 +62,6 @@ public class AuguracySpells
     public static void register(IEventBus eventBus)
     {
         SPELLS.register(eventBus);
+        SPELL_TYPES.register(eventBus);
     }
 }
