@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -32,9 +33,10 @@ public class AuguracySpells
     //fallback in case a spell is not found
     public static final Supplier<Spell> EMPTY = registerSpell("empty_spell", () -> new Spell() {
         { name = "Empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
+
         @Override
         protected boolean onCast(Player caster) {
-            caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
+                caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
             return true;
         }
 

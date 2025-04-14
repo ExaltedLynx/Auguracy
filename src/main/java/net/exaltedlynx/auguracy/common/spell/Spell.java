@@ -1,9 +1,7 @@
 package net.exaltedlynx.auguracy.common.spell;
 
 import com.mojang.datafixers.Products;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
-import com.mojang.datafixers.types.Func;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,6 +19,8 @@ public abstract class Spell
     protected int lvlReq;
     protected int manaCost;
 
+    public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::getCodec, Function.identity());
+
     public static final MapCodec<Spell> SIMPLE_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
         Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
     ).apply(inst, AuguracySpells::getSpellFromName));
@@ -28,8 +28,6 @@ public abstract class Spell
     protected static <S extends Spell> Products.P1<Mu<S>, String> startSpellCodec(RecordCodecBuilder.Instance<S> instance) {
         return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName));
     }
-
-    public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::getCodec, Function.identity());
 
     public boolean cast(Player caster) {
         boolean casted = false;
