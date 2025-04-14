@@ -43,6 +43,8 @@ public abstract class Spell
 
     protected abstract boolean onCast(Player caster);
 
+    public void onCastRelease(Player caster) { }
+
     private boolean canCast(Player caster)
     {
         return lvlReq <= caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost <= caster.getData(AuguracyAttachments.MANA).getCurrentMana();

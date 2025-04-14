@@ -3,13 +3,17 @@ package net.exaltedlynx.auguracy.common.spell;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
@@ -25,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
+import org.checkerframework.checker.units.qual.A;
 
 public class Spells
 {
@@ -51,7 +56,7 @@ public class Spells
             this.type = type;
             this.lvlReq = lvlReq;
             this.manaCost = manaCost;
-            toolComponent = Items.IRON_PICKAXE.components().get(DataComponents.TOOL);
+            setToolComponent((PickaxeItem) Items.WOODEN_PICKAXE);
         }
 
         public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
@@ -79,45 +84,17 @@ public class Spells
 
             if (blockHitResult.getType() == HitResult.Type.BLOCK)
             {
-                currentBlock = blockHitResult.getBlockPos();
-                BlockState blockState = level.getBlockState(currentBlock);
-                float blockHardness = blockState.getDestroySpeed(level, currentBlock);
-                float breakSpeed = toolComponent.getMiningSpeed(blockState);
-
-                //caster.displayClientMessage(Component.literal(String.valueOf(ticksUntilNextProgress)), false);
-
-                //credit to Create mod
-                if (ticksUntilNextProgress < 0)
-                    return false;
-                if (ticksUntilNextProgress-- > 0)
-                    return false;
-
-                var event = CommonHooks.fireBlockBreak(level, sPlayer.gameMode.getGameModeForPlayer(), sPlayer, currentBlock, blockState);
-                if (event.isCanceled())
+                if(!blockHitResult.getBlockPos().equals(currentBlock))
                 {
-                    destroyProgress = 0;
-                    ticksUntilNextProgress = 1;
-                    level.destroyBlockProgress(sPlayer.getId(), currentBlock, -1);
-                    sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, -1));
-                    return false;
+                    resetBlockDestroyProgress(level, sPlayer);
                 }
-
-                ClientLevel cLevel = Minecraft.getInstance().level;
-                destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness), 1, 10 - destroyProgress);
-                cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
-
-                if (destroyProgress >= 10) {
-                    level.destroyBlock(currentBlock, true, sPlayer);
-                    destroyProgress = 0;
-                    ticksUntilNextProgress = 1;
-                    level.destroyBlockProgress(sPlayer.getId(), currentBlock, -1);
-                    sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, -1));
-                    return true;
-                }
-
-                ticksUntilNextProgress = (int) (blockHardness / breakSpeed);
-                level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyProgress);
-                sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, destroyProgress));
+                currentBlock = blockHitResult.getBlockPos().immutable();
+                BlockState blockState = level.getBlockState(currentBlock);
+                return handleBlockMining(level, sPlayer, blockState, blockHitResult);
+            }
+            else if(currentBlock != BlockPos.ZERO)
+            {
+                resetBlockDestroyProgress(level, sPlayer);
             }
             return false;
         }
@@ -125,6 +102,57 @@ public class Spells
         @Override
         public boolean corruptedCast(Player caster) {
             return false;
+        }
+
+        @Override
+        public void onCastRelease(Player caster) {
+            Auguracy.LOGGER.atDebug().log(toolComponent.rules().toString());
+            resetBlockDestroyProgress(caster.level(), (ServerPlayer) caster);
+        }
+
+        private boolean handleBlockMining(Level level, ServerPlayer sPlayer, BlockState blockState, BlockHitResult blockHitResult)
+        {
+            float blockHardness = blockState.getDestroySpeed(level, currentBlock);
+            float breakSpeed = toolComponent.getMiningSpeed(blockState);
+
+            //caster.displayClientMessage(Component.literal(String.valueOf(ticksUntilNextProgress)), false);
+
+            //credit to Create mod
+            if (ticksUntilNextProgress < 0)
+                return false;
+            if (ticksUntilNextProgress-- > 0)
+                return false;
+
+            var event = CommonHooks.fireBlockBreak(level, sPlayer.gameMode.getGameModeForPlayer(), sPlayer, currentBlock, blockState);
+            if (event.isCanceled())
+            {
+                resetBlockDestroyProgress(level, sPlayer);
+                return false;
+            }
+
+            destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness), 1, 10 - destroyProgress);
+            //cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
+            ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
+            particleEngine.addBlockHitEffects(currentBlock, blockHitResult);
+
+            if (destroyProgress >= 10) {
+                level.destroyBlock(currentBlock, true, sPlayer);
+                resetBlockDestroyProgress(level, sPlayer);
+                return true;
+            }
+
+            ticksUntilNextProgress = (int) (blockHardness / breakSpeed);
+            level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyProgress);
+            sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, destroyProgress));
+            return false;
+        }
+
+        private void resetBlockDestroyProgress(Level level, ServerPlayer sPlayer)
+        {
+            destroyProgress = 0;
+            ticksUntilNextProgress = 1;
+            level.destroyBlockProgress(sPlayer.getId(), currentBlock, -1);
+            sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, -1));
         }
 
         public void setToolComponent(PickaxeItem pickaxe)

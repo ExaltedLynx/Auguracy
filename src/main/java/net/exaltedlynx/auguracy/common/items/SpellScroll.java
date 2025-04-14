@@ -12,13 +12,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 
 public class SpellScroll extends Item implements IItemExtension
 {
+    private Spell currentSpell;
+
     public SpellScroll(Properties properties)
     {
-        super(properties);
+        super(properties.stacksTo(1).enchantable(0));
     }
 
     @Override
@@ -30,25 +34,50 @@ public class SpellScroll extends Item implements IItemExtension
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
-        ItemStack heldItem = player.getItemInHand(hand);
-        if(heldItem.has(AuguracyDataComponents.SPELL_CONTAINER))
+        ItemStack stack = player.getItemInHand(hand);
+        if(stack.has(AuguracyDataComponents.SPELL_CONTAINER) && currentSpell == null)
         {
-            if(!level.isClientSide)
-            {
-                Spell spell = heldItem.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
-                spell.cast(player);
-            }
+            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
+        }
+        if(currentSpell != null)
+        {
+            player.startUsingItem(hand);
         }
         return InteractionResult.PASS;
     }
 
+    @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        if(livingEntity instanceof Player player && player.tickCount % 2 == 0)
+        {
+            if(!level.isClientSide) {
+                    currentSpell.cast(player);
+            }
+        }
+    }
 
     @Override
-    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        Auguracy.LOGGER.atDebug().log(String.valueOf(stack));
-        if(entity instanceof Player player)
-            player.displayClientMessage(Component.literal("test"), false);
-
-        return super.releaseUsing(stack, level, entity, timeLeft);
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return Integer.MAX_VALUE;
     }
+
+    @Override
+    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
+        if(entity instanceof Player player && !player.level().isClientSide)
+        {
+            currentSpell.onCastRelease(player);
+        }
+    }
+
+    /*
+    @Override
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+        if(!level.isClientSide && entity instanceof Player player)
+        {
+            currentSpell.onCastRelease(player);
+        }
+        return false;
+    }
+
+     */
 }
