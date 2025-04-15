@@ -7,16 +7,11 @@ import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
@@ -29,12 +24,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
-import org.checkerframework.checker.units.qual.A;
 
 public class Spells
 {
     public static class DigSpell extends Spell implements ICorruptable
     {
+        //TODO switch to storing pickaxe itemstack instead like modular routers
         private Tool toolComponent;
         private double range = 4.5;
         private int destroyProgress;
@@ -56,7 +51,7 @@ public class Spells
             this.type = type;
             this.lvlReq = lvlReq;
             this.manaCost = manaCost;
-            setToolComponent((PickaxeItem) Items.WOODEN_PICKAXE);
+            setToolComponent((PickaxeItem) Items.DIAMOND_PICKAXE);
         }
 
         public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
@@ -106,7 +101,7 @@ public class Spells
 
         @Override
         public void onCastRelease(Player caster) {
-            Auguracy.LOGGER.atDebug().log(toolComponent.rules().toString());
+            Auguracy.LOGGER.atDebug().log(String.valueOf(toolComponent.toString()));
             resetBlockDestroyProgress(caster.level(), (ServerPlayer) caster);
         }
 
@@ -162,7 +157,7 @@ public class Spells
 
         public Tool getTool()
         {
-            return toolComponent;
+            return Items.DIAMOND_PICKAXE.components().get(DataComponents.TOOL);
         }
 
         public double getRange()
