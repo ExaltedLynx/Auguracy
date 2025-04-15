@@ -64,15 +64,4 @@ public class Auguracy
         event.register(AuguracySpells.SPELL_REGISTRY);
         event.register(AuguracySpells.SPELL_TYPES_REGISTRY);
     }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-            NeoForge.EVENT_BUS.addListener(GuiEventHandler::onPlayerInventoryGuiInit);
-        }
-    }
 }

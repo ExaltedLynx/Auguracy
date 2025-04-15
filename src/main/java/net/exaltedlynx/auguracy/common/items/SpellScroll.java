@@ -37,7 +37,11 @@ public class SpellScroll extends Item implements IItemExtension
         }
         if(currentSpell != null)
         {
-            player.startUsingItem(hand);
+            if(!level.isClientSide)
+            {
+                currentSpell.cast(player);
+            }
+            //player.startUsingItem(hand);
         }
         return InteractionResult.PASS;
     }

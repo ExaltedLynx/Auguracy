@@ -14,6 +14,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.component.Tool;
@@ -29,8 +31,7 @@ public class Spells
 {
     public static class DigSpell extends Spell implements ICorruptable
     {
-        //TODO switch to storing pickaxe itemstack instead like modular routers
-        private Tool toolComponent;
+        private ItemStack pickaxe;
         private double range = 4.5;
         private int destroyProgress;
         private int ticksUntilNextProgress;
@@ -38,11 +39,11 @@ public class Spells
 
         public static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
                 inst.group(
-                        Tool.CODEC.fieldOf("tool").forGetter(DigSpell::getTool),
-                        Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
-                        Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
-                        Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress),
-                        BlockPos.CODEC.fieldOf("currentBlock").forGetter(DigSpell::getCurrentBlock)
+                    ItemStack.SINGLE_ITEM_CODEC.fieldOf("pickaxe").forGetter(DigSpell::getPickaxe),
+                    Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
+                    Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
+                    Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress),
+                    BlockPos.CODEC.fieldOf("currentBlock").forGetter(DigSpell::getCurrentBlock)
                 )).apply(inst, DigSpell::initDigSpell));
 
         public DigSpell(String name, ElementType type, int lvlReq, int manaCost)
@@ -51,13 +52,12 @@ public class Spells
             this.type = type;
             this.lvlReq = lvlReq;
             this.manaCost = manaCost;
-            setToolComponent((PickaxeItem) Items.DIAMOND_PICKAXE);
         }
 
-        public static DigSpell initDigSpell(String name, Tool tool, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
+        public static DigSpell initDigSpell(String name, ItemStack pickaxe, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
         {
             DigSpell spell = (DigSpell) AuguracySpells.getSpellFromName(name);
-            spell.toolComponent = tool;
+            spell.pickaxe = pickaxe;
             spell.range = range;
             spell.destroyProgress = destroyProgress;
             spell.ticksUntilNextProgress = ticksUntilNextProgress;
@@ -101,16 +101,13 @@ public class Spells
 
         @Override
         public void onCastRelease(Player caster) {
-            Auguracy.LOGGER.atDebug().log(String.valueOf(toolComponent.toString()));
             resetBlockDestroyProgress(caster.level(), (ServerPlayer) caster);
         }
 
         private boolean handleBlockMining(Level level, ServerPlayer sPlayer, BlockState blockState, BlockHitResult blockHitResult)
         {
             float blockHardness = blockState.getDestroySpeed(level, currentBlock);
-            float breakSpeed = toolComponent.getMiningSpeed(blockState);
-
-            //caster.displayClientMessage(Component.literal(String.valueOf(ticksUntilNextProgress)), false);
+            float breakSpeed = pickaxe.getDestroySpeed(blockState);
 
             //credit to Create mod
             if (ticksUntilNextProgress < 0)
@@ -126,6 +123,7 @@ public class Spells
             }
 
             destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness), 1, 10 - destroyProgress);
+            Auguracy.LOGGER.atDebug().log(String.valueOf(destroyProgress));
             //cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
             ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
             particleEngine.addBlockHitEffects(currentBlock, blockHitResult);
@@ -150,14 +148,14 @@ public class Spells
             sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, -1));
         }
 
-        public void setToolComponent(PickaxeItem pickaxe)
+        public void setPickaxe(ItemStack pickaxe)
         {
-            toolComponent = pickaxe.components().get(DataComponents.TOOL);
+            this.pickaxe = pickaxe;
         }
 
-        public Tool getTool()
+        public ItemStack getPickaxe()
         {
-            return Items.DIAMOND_PICKAXE.components().get(DataComponents.TOOL);
+            return Items.STONE_PICKAXE.getDefaultInstance();
         }
 
         public double getRange()
