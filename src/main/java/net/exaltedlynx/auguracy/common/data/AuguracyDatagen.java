@@ -12,5 +12,6 @@ public class AuguracyDatagen
     public static void gatherData(GatherDataEvent.Client event)
     {
         event.createProvider(AuguracyModelProvider::new);
+        event.createProvider(AuguracyRecipeProvider.Runner::new);
     }
 }

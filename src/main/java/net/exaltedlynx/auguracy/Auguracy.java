@@ -2,20 +2,17 @@ package net.exaltedlynx.auguracy;
 
 import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
+import net.exaltedlynx.auguracy.common.events.PlayerEventHandler;
 import net.exaltedlynx.auguracy.common.network.NetworkRegister;
 import net.exaltedlynx.auguracy.setup.*;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -32,6 +29,7 @@ public class Auguracy
     public Auguracy(IEventBus modEventBus, ModContainer modContainer)
     {
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(PlayerEventHandler.class);
         modEventBus.addListener(this::registerRegistries);
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(NetworkRegister::register);

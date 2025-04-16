@@ -104,6 +104,9 @@ public class Spells
         {
             float blockHardness = blockState.getDestroySpeed(level, currentBlock);
             float breakSpeed = pickaxe.getDestroySpeed(blockState);
+            Auguracy.LOGGER.atDebug().log("Break Speed");
+            Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
+            Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
 
             //credit to Create mod
             if (ticksUntilNextProgress < 0)
@@ -118,8 +121,12 @@ public class Spells
                 return false;
             }
 
-            destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness), 1, 10 - destroyProgress);
+            int i = net.neoforged.neoforge.event.EventHooks.doPlayerHarvestCheck(sPlayer, blockState, level, currentBlock) ? 30 : 100;
+            destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness / i), 1, 10 - destroyProgress);
+            Auguracy.LOGGER.atDebug().log("Destroy Progress");
+            Auguracy.LOGGER.atDebug().log(String.valueOf(breakSpeed / blockHardness / i));
             Auguracy.LOGGER.atDebug().log(String.valueOf(destroyProgress));
+
             //cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
             ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
             particleEngine.addBlockHitEffects(currentBlock, blockHitResult);
@@ -127,10 +134,13 @@ public class Spells
             if (destroyProgress >= 10) {
                 level.destroyBlock(currentBlock, true, sPlayer);
                 resetBlockDestroyProgress(level, sPlayer);
+                ticksUntilNextProgress = 6;
                 return true;
             }
+            Auguracy.LOGGER.atDebug().log(String.valueOf((blockHardness / breakSpeed)));
+            ticksUntilNextProgress = (int) Mth.clamp(blockHardness / breakSpeed, 0, blockHardness / breakSpeed);
+            Auguracy.LOGGER.atDebug().log(String.valueOf(ticksUntilNextProgress));
 
-            ticksUntilNextProgress = (int) (blockHardness / breakSpeed);
             level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyProgress);
             sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, destroyProgress));
             return false;

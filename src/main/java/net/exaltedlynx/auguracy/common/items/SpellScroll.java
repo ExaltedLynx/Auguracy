@@ -28,7 +28,7 @@ public class SpellScroll extends Item implements IItemExtension
     public void onCraftedBy(ItemStack stack, Level level, Player player)
     {
         stack.set(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get());
-        if(!level.isClientSide)
+        if(!level.isClientSide && !stack.isEmpty())
         {
             PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
         }
@@ -44,11 +44,15 @@ public class SpellScroll extends Item implements IItemExtension
         }
         if(currentSpell != null)
         {
+            /*
             if(!level.isClientSide)
             {
                 currentSpell.cast(player);
             }
-            //player.startUsingItem(hand);
+
+             */
+            player.startUsingItem(hand);
+            return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
     }
