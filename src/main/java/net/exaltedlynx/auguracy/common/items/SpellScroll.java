@@ -1,8 +1,10 @@
 package net.exaltedlynx.auguracy.common.items;
 
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
+import net.exaltedlynx.auguracy.common.network.SyncSpellContainerPacket;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SpellScroll extends Item implements IItemExtension
 {
@@ -25,6 +28,10 @@ public class SpellScroll extends Item implements IItemExtension
     public void onCraftedBy(ItemStack stack, Level level, Player player)
     {
         stack.set(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get());
+        if(!level.isClientSide)
+        {
+            PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
+        }
     }
 
     @Override

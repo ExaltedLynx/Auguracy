@@ -9,16 +9,12 @@ import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -155,7 +151,7 @@ public class Spells
 
         public ItemStack getPickaxe()
         {
-            return Items.STONE_PICKAXE.getDefaultInstance();
+            return Items.DIAMOND_PICKAXE.getDefaultInstance();
         }
 
         public double getRange()
