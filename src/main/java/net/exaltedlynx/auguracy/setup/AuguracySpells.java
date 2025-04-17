@@ -19,11 +19,11 @@ import java.util.function.Supplier;
 
 public class AuguracySpells
 {
-    private static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spells"));
+    public static final ResourceKey<Registry<Spell>> SPELL_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spells"));
     public static final Registry<Spell> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, Auguracy.MODID);
 
-    private static final ResourceKey<Registry<MapCodec<? extends Spell>>> SPELL_TYPES_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spell_types"));
+    public static final ResourceKey<Registry<MapCodec<? extends Spell>>> SPELL_TYPES_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spell_types"));
     public static final Registry<MapCodec<? extends Spell>> SPELL_TYPES_REGISTRY = new RegistryBuilder<>(SPELL_TYPES_KEY).sync(true).create();
     public static final DeferredRegister<MapCodec<? extends Spell>> SPELL_TYPES = DeferredRegister.create(SPELL_TYPES_REGISTRY, Auguracy.MODID);
 
