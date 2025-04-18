@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy.common.blocks.blockentities;
 
+import net.exaltedlynx.auguracy.client.gui.menus.SpellInscriberMenu;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -28,7 +29,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
 
     @Override
     protected Component getDefaultName() {
-        return Component.translatable("container.auguracy.spell_inscriber_entity");
+        return Component.translatable("container.auguracy.inscriber_entity");
     }
 
     @Override
@@ -43,7 +44,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
 
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return null;
+        return new SpellInscriberMenu(containerId, inventory);
     }
 
     @Override
@@ -53,16 +54,13 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return super.getUpdateTag(registries);
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
     }
 
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return super.getUpdatePacket();
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 }

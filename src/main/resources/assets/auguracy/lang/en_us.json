@@ -7,7 +7,8 @@
   "item.auguracy.spell_scroll": "Spell Scroll",
   "item.auguracy.spell_crystal": "Spell Crystal",
 
-  "container.auguracy.spell_inscriber_entity": "Spell Infuser",
+  "container.auguracy.inscriber_entity": "Spell Infuser",
+  "screen.auguracy.inscriber_screen": "Spell Infuser",
 
   "auguracy.creativetab": "Auguracy"
 }

@@ -30,10 +30,12 @@ public class Auguracy
     {
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(PlayerEventHandler.class);
+
         modEventBus.addListener(this::registerRegistries);
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(NetworkRegister::register);
         modEventBus.addListener(GuiEventHandler::registerHUDOverlays);
+        modEventBus.addListener(GuiEventHandler::registerScreens);
 
         AuguracyCreativeTab.register(modEventBus);
         AuguracyDataComponents.register(modEventBus);
