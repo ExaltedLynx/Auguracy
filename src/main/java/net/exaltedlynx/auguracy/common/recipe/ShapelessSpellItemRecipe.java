@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy.common.recipe;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
@@ -56,8 +57,14 @@ public class ShapelessSpellItemRecipe extends ShapelessRecipe {
 
     public class Serializer implements RecipeSerializer<ShapelessSpellItemRecipe>
     {
-        //public static final MapCodec<ShapelessSpellItemRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-        //))
+        /*
+        public static final MapCodec<ShapelessSpellItemRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+                Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
+                CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(p_301133_ -> p_301133_.category),
+                ItemStack.STRICT_CODEC.fieldOf("result").forGetter(p_301142_ -> p_301142_.result),
+                Codec.lazyInitialized(() -> Ingredient.CODEC.listOf(1, ShapedRecipePattern.maxHeight * ShapedRecipePattern.maxWidth)).fieldOf("ingredients").forGetter(p_360071_ -> p_360071_.ingredients)
+        ))
+         */
 
         @Override
         public MapCodec<ShapelessSpellItemRecipe> codec() {

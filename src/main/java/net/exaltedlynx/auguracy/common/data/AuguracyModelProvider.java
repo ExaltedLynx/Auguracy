@@ -8,6 +8,7 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -22,6 +23,8 @@ public class AuguracyModelProvider extends ModelProvider
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
     {
         createCrossBlockWithDefaultItem(blockModels, AuguracyBlocks.MANA_FLOWER.get(), BlockModelGenerators.PlantType.NOT_TINTED,"cutout");
+
+        blockModels.createTrivialCube(AuguracyBlocks.SPELL_INSCRIBER.get());
 
         itemModels.generateFlatItem(AuguracyItems.MANA_SHARD.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(AuguracyItems.DIVINE_WAND.get(), ModelTemplates.FLAT_ITEM);

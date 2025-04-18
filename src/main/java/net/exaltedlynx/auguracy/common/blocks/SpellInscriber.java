@@ -1,0 +1,29 @@
+package net.exaltedlynx.auguracy.common.blocks;
+
+import com.mojang.serialization.MapCodec;
+import net.exaltedlynx.auguracy.common.blocks.blockentities.SpellInscriberEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+public class SpellInscriber extends Block implements EntityBlock
+{
+    private static final MapCodec<SpellInscriber> CODEC = simpleCodec(SpellInscriber::new);
+
+    public SpellInscriber(Properties p_49795_) {
+        super(p_49795_);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new SpellInscriberEntity(pos, state);
+    }
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        return CODEC;
+    }
+}

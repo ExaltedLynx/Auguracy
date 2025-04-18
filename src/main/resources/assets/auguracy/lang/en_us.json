@@ -1,10 +1,13 @@
 {
   "block.auguracy.mana_flower": "Mana Flower",
+  "block.auguracy.spell_inscriber": "Spell Infuser",
 
   "item.auguracy.mana_shard": "Mana Shard",
   "item.auguracy.divine_wand": "Divine Wand",
   "item.auguracy.spell_scroll": "Spell Scroll",
   "item.auguracy.spell_crystal": "Spell Crystal",
+
+  "container.auguracy.spell_inscriber_entity": "Spell Infuser",
 
   "auguracy.creativetab": "Auguracy"
 }
