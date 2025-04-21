@@ -43,6 +43,7 @@ public class Auguracy
         AuguracyBlocks.register(modEventBus);
         AuguracyItems.register(modEventBus);
         AuguracySpells.register(modEventBus);
+        AuguracyMenus.register(modEventBus);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

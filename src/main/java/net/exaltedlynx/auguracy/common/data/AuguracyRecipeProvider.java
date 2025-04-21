@@ -20,7 +20,7 @@ public class AuguracyRecipeProvider extends RecipeProvider
 	@Override
 	protected void buildRecipes()
 	{
-		SpecialRecipeBuilder.special(RepairItemRecipe::new);
+		//SpecialRecipeBuilder.special(RepairItemRecipe::new);
 	}
 
 	public static class Runner extends RecipeProvider.Runner
