@@ -1,26 +1,21 @@
 package net.exaltedlynx.auguracy.common.blocks.blockentities;
 
-import net.exaltedlynx.auguracy.client.gui.menus.SpellInscriberMenu;
+import net.exaltedlynx.auguracy.common.containers.SpellInscriberMenu;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 public class SpellInscriberEntity extends BaseContainerBlockEntity
 {
-    public static final int INV_SIZE = 9;
+    public static final int INV_SIZE = 7;
     private NonNullList<ItemStack> items = NonNullList.withSize(INV_SIZE, ItemStack.EMPTY);
 
     public SpellInscriberEntity(BlockPos pos, BlockState blockState) {
@@ -60,7 +55,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     }
 
     @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.handleUpdateTag(tag, lookupProvider);
     }
 }

@@ -32,7 +32,8 @@ public class AuguracyBlocks
             BlockBehaviour.Properties.of().destroyTime(2).explosionResistance(6).sound(SoundType.WOOD));
 
     public static final Supplier<BlockEntityType<SpellInscriberEntity>> SPELL_INSCRIBER_ENTITY = BLOCK_ENTITY_TYPES.register(
-            "spell_inscriber_entity", () -> new BlockEntityType<>(SpellInscriberEntity::new, SPELL_INSCRIBER.get())
+            "spell_inscriber_entity",
+            () -> new BlockEntityType<>(SpellInscriberEntity::new, SPELL_INSCRIBER.get())
     );
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties, ? extends T> block, BlockBehaviour.Properties properties)
