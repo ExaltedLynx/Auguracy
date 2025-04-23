@@ -15,33 +15,36 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class SpellScroll extends Item implements IItemExtension
+public class SpellItem extends Item implements IItemExtension
 {
     private Spell currentSpell;
+    boolean isConsumable;
 
-    public SpellScroll(Properties properties)
+    public SpellItem(Properties properties, boolean isConsumable)
     {
-        super(properties.stacksTo(1));
+        super(properties
+                .component(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get())
+                .stacksTo(1)
+        );
+        this.isConsumable = isConsumable;
     }
 
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player)
     {
-        stack.set(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get());
-        if(!level.isClientSide && !stack.isEmpty())
+        if(!stack.isEmpty() && stack.has(AuguracyDataComponents.SPELL_CONTAINER))
         {
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
+            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
+            if(!level.isClientSide)
+            {
+                PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
+            }
         }
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
-        ItemStack stack = player.getItemInHand(hand);
-        if(stack.has(AuguracyDataComponents.SPELL_CONTAINER) && currentSpell == null)
-        {
-            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
-        }
         if(currentSpell != null)
         {
             /*
@@ -49,7 +52,6 @@ public class SpellScroll extends Item implements IItemExtension
             {
                 currentSpell.cast(player);
             }
-
              */
             player.startUsingItem(hand);
             return InteractionResult.CONSUME;
@@ -81,5 +83,7 @@ public class SpellScroll extends Item implements IItemExtension
         {
             currentSpell.onCastRelease(player);
         }
+        if(isConsumable)
+            stack.consume(1, null);
     }
 }

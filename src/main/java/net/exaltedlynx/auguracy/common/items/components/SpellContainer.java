@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public record SpellContainer(Spell spell)
 {
-    public static final Supplier<SpellContainer> EMPTY = () -> new SpellContainer(AuguracySpells.DIG.get());
+    public static final Supplier<SpellContainer> EMPTY = () -> new SpellContainer(AuguracySpells.EMPTY.get());
 
     public static final Codec<SpellContainer> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Spell.CODEC.fieldOf("spell").forGetter(SpellContainer::spell))
