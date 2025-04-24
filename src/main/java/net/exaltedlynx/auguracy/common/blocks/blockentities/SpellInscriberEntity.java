@@ -7,11 +7,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class SpellInscriberEntity extends BaseContainerBlockEntity
 {
@@ -32,6 +36,11 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
         return items;
     }
 
+    private ItemStackHandler getInventory()
+    {
+        return new ItemStackHandler(items);
+    }
+
     @Override
     protected void setItems(NonNullList<ItemStack> items) {
         this.items = items;
@@ -39,7 +48,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
 
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new SpellInscriberMenu(containerId, inventory);
+        return SpellInscriberMenu.createServerMenu(containerId, inventory, getInventory(), ContainerLevelAccess.create(level, getBlockPos()));
     }
 
     @Override
@@ -48,14 +57,17 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider)
+    {
+        super.saveAdditional(tag, provider);
+        ContainerHelper.saveAllItems(tag, this.items, provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        super.handleUpdateTag(tag, lookupProvider);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider)
+    {
+        super.loadAdditional(tag, provider);
+        this.items = NonNullList.withSize(INV_SIZE, ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(tag, this.items, provider);
     }
 }

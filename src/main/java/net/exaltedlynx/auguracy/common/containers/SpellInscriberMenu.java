@@ -33,16 +33,9 @@ public class SpellInscriberMenu extends AbstractContainerMenu
     private SpellInscriberEntity inscriberEntity;
     private SpellInscriberInput inscriberInput;
 
-    //Client constructor
-    public SpellInscriberMenu(int containerId, Inventory playerInventory)
+    private SpellInscriberMenu(int containerId, Inventory playerInventory, IItemHandler dataInventory, ContainerLevelAccess access)
     {
-        this(containerId, playerInventory, new ItemStackHandler(INV_SIZE), ContainerLevelAccess.NULL);
-    }
-
-    //Server Constructor
-    public SpellInscriberMenu(int containerId, Inventory playerInventory, IItemHandler dataInventory, ContainerLevelAccess access)
-    {
-		super(AuguracyMenus.SPELL_INSCRIBER_MENU.get(), containerId);
+        super(AuguracyMenus.SPELL_INSCRIBER_MENU.get(), containerId);
         validateInventorySize(dataInventory);
         this.access = access;
         this.player = playerInventory.player;
@@ -55,8 +48,19 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         this.addSlot(new SlotItemHandler(dataInventory, 5, 75, 103));
         this.addSlot(new InscriberResultSlotHandler(dataInventory, 6, 126, 57));
         this.addStandardInventorySlots(playerInventory, 8, 129);
-	}
+    }
 
+    public static SpellInscriberMenu createClientMenu(int containerId, Inventory playerInventory)
+    {
+        return new SpellInscriberMenu(containerId, playerInventory, new ItemStackHandler(INV_SIZE), ContainerLevelAccess.NULL);
+    }
+
+    public static SpellInscriberMenu createServerMenu(int containerId, Inventory playerInventory, IItemHandler dataInventory, ContainerLevelAccess access)
+    {
+        return new SpellInscriberMenu(containerId, playerInventory, dataInventory, access);
+    }
+
+    /*
     @Override
     public void slotsChanged(Container container)
     {
@@ -66,6 +70,11 @@ public class SpellInscriberMenu extends AbstractContainerMenu
             {
                 SpellItem spellItem = (SpellItem) inscriberEntity.getItem(0).getItem();
                 List<ItemStack> items = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1);
+
+                Auguracy.LOGGER.atDebug().log(spellItem.toString());
+                for(var item : items)
+                    Auguracy.LOGGER.atDebug().log(item.toString());
+
                 inscriberInput = new SpellInscriberInput(spellItem, items);
                 Optional<RecipeHolder<SpellInscriberRecipe>> optional = sLevel.recipeAccess().getRecipeFor(
                         AuguracyRecipes.INSCRIBER_RECIPE_TYPE.get(),
@@ -85,6 +94,8 @@ public class SpellInscriberMenu extends AbstractContainerMenu
             }
         });
     }
+
+     */
 
     private void RetrieveInscriberBlockEntity(ContainerLevelAccess access)
     {

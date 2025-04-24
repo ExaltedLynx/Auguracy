@@ -14,7 +14,7 @@ public class AuguracyMenus
 {
 	public static final DeferredRegister<MenuType<?>> AUGURACY_MENUS = DeferredRegister.create(Registries.MENU, Auguracy.MODID);
 
-	public static final Supplier<MenuType<SpellInscriberMenu>> SPELL_INSCRIBER_MENU = AUGURACY_MENUS.register("inscriber_menu", () -> new MenuType<>(SpellInscriberMenu::new, FeatureFlags.DEFAULT_FLAGS));
+	public static final Supplier<MenuType<SpellInscriberMenu>> SPELL_INSCRIBER_MENU = AUGURACY_MENUS.register("inscriber_menu", () -> new MenuType<>(SpellInscriberMenu::createClientMenu, FeatureFlags.DEFAULT_FLAGS));
 
 	public static void register(IEventBus event)
 	{
