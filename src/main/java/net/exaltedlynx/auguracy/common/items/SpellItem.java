@@ -22,10 +22,7 @@ public class SpellItem extends Item implements IItemExtension
 
     public SpellItem(Properties properties, boolean isConsumable)
     {
-        super(properties
-                .component(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get())
-                .stacksTo(1)
-        );
+        super(properties.stacksTo(1));
         this.isConsumable = isConsumable;
     }
 

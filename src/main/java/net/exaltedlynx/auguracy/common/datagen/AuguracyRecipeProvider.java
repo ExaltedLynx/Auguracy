@@ -1,12 +1,14 @@
-package net.exaltedlynx.auguracy.common.data;
+package net.exaltedlynx.auguracy.common.datagen;
 
 import net.exaltedlynx.auguracy.Auguracy;
+import net.exaltedlynx.auguracy.common.datagen.builders.SpellInscriberRecipeBuilder;
+import net.exaltedlynx.auguracy.common.recipe.SpellInscriberRecipe;
+import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.SpecialRecipeBuilder;
-import net.minecraft.world.item.crafting.RepairItemRecipe;
+import net.minecraft.tags.ItemTags;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +22,10 @@ public class AuguracyRecipeProvider extends RecipeProvider
 	@Override
 	protected void buildRecipes()
 	{
-		//SpecialRecipeBuilder.special(RepairItemRecipe::new);
+		new SpellInscriberRecipeBuilder(SpellInscriberRecipe::new)
+				.setSpellResult(AuguracySpells.DIG.get())
+				.addIngredient(tag(ItemTags.PICKAXES))
+				.save(this.output, "dig_spell");
 	}
 
 	public static class Runner extends RecipeProvider.Runner

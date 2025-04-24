@@ -1,6 +1,5 @@
 package net.exaltedlynx.auguracy.common.recipe;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
@@ -64,9 +63,8 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
             }
         }
         else
-        {
             result.set(AuguracyDataComponents.SPELL_CONTAINER, new SpellContainer(spellToAttach));
-        }
+
         return result.copy();
     }
 

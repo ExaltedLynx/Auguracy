@@ -1,4 +1,4 @@
-package net.exaltedlynx.auguracy.common.data;
+package net.exaltedlynx.auguracy.common.datagen;
 
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
@@ -8,7 +8,6 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;

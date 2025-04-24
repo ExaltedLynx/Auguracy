@@ -1,4 +1,4 @@
-package net.exaltedlynx.auguracy.common.data;
+package net.exaltedlynx.auguracy.common.datagen;
 
 import net.exaltedlynx.auguracy.Auguracy;
 import net.neoforged.bus.api.SubscribeEvent;

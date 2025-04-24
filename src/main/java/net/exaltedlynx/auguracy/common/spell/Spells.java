@@ -161,7 +161,7 @@ public class Spells
 
         public ItemStack getPickaxe()
         {
-            return Items.DIAMOND_PICKAXE.getDefaultInstance();
+            return pickaxe != null ? pickaxe : Items.WOODEN_PICKAXE.getDefaultInstance();
         }
 
         public double getRange()

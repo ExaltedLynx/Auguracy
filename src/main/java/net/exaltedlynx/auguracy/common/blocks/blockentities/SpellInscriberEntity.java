@@ -28,7 +28,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     }
 
     @Override
-    protected NonNullList<ItemStack> getItems() {
+    public NonNullList<ItemStack> getItems() {
         return items;
     }
 
