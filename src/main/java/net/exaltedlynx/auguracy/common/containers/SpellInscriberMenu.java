@@ -12,7 +12,6 @@ import net.exaltedlynx.auguracy.setup.AuguracyRecipes;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -30,6 +29,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
     public static final int INV_SIZE = 7;
     private final ContainerLevelAccess access;
     private final Player player;
+    private IItemHandler inscriberInventory;
     private SpellInscriberEntity inscriberEntity;
     private SpellInscriberInput inscriberInput;
 
@@ -39,14 +39,15 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         validateInventorySize(dataInventory);
         this.access = access;
         this.player = playerInventory.player;
-        RetrieveInscriberBlockEntity(access);
+        this.inscriberInventory = dataInventory;
+        RetrieveInscriberBlockEntity();
         this.addSlot(new SpellItemSlotHandler(dataInventory, 0, 26, 57));
-        this.addSlot(new SlotItemHandler(dataInventory, 1, 75, 11));
-        this.addSlot(new SlotItemHandler(dataInventory, 2, 64, 34));
-        this.addSlot(new SlotItemHandler(dataInventory, 3, 53, 57));
-        this.addSlot(new SlotItemHandler(dataInventory, 4, 64, 80));
-        this.addSlot(new SlotItemHandler(dataInventory, 5, 75, 103));
-        this.addSlot(new InscriberResultSlotHandler(dataInventory, 6, 126, 57));
+        this.addSlot(new InscriberSlotHandler(dataInventory, 1, 75, 11));
+        this.addSlot(new InscriberSlotHandler(dataInventory, 2, 64, 34));
+        this.addSlot(new InscriberSlotHandler(dataInventory, 3, 53, 57));
+        this.addSlot(new InscriberSlotHandler(dataInventory, 4, 64, 80));
+        this.addSlot(new InscriberSlotHandler(dataInventory, 5, 75, 103));
+        this.addSlot(new InscriberResultSlotHandler(dataInventory, playerInventory.player, 6, 126, 57));
         this.addStandardInventorySlots(playerInventory, 8, 129);
     }
 
@@ -60,22 +61,21 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         return new SpellInscriberMenu(containerId, playerInventory, dataInventory, access);
     }
 
-    /*
-    @Override
-    public void slotsChanged(Container container)
+    private void craft()
     {
-        super.slotsChanged(container);
         access.execute((level, blockPos) -> {
             if(level instanceof ServerLevel sLevel)
             {
                 SpellItem spellItem = (SpellItem) inscriberEntity.getItem(0).getItem();
-                List<ItemStack> items = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1);
+                List<ItemStack> craftingItems = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1).stream().filter(item -> !item.isEmpty()).toList();
 
+                /*
                 Auguracy.LOGGER.atDebug().log(spellItem.toString());
-                for(var item : items)
+                for(var item : craftingItems)
                     Auguracy.LOGGER.atDebug().log(item.toString());
+                 */
 
-                inscriberInput = new SpellInscriberInput(spellItem, items);
+                inscriberInput = new SpellInscriberInput(spellItem, craftingItems);
                 Optional<RecipeHolder<SpellInscriberRecipe>> optional = sLevel.recipeAccess().getRecipeFor(
                         AuguracyRecipes.INSCRIBER_RECIPE_TYPE.get(),
                         inscriberInput,
@@ -84,22 +84,25 @@ public class SpellInscriberMenu extends AbstractContainerMenu
                 ItemStack result = optional.map(RecipeHolder::value).map(recipe ->
                         recipe.assemble(inscriberInput, level.registryAccess())).orElse(ItemStack.EMPTY);
 
-                if(!result.isEmpty())
-                {
-                    getSlot(6).set(result);
-                    setRemoteSlot(6, result);
-                    ServerPlayer sPlayer = (ServerPlayer) player;
-                    sPlayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 6, result));
-                }
+                getSlot(6).set(result);
+                setRemoteSlot(6, result);
+                ServerPlayer sPlayer = (ServerPlayer) player;
+                sPlayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 6, result));
             }
         });
     }
 
-     */
-
-    private void RetrieveInscriberBlockEntity(ContainerLevelAccess access)
+    private void consumeCraftingItems()
     {
-        access.execute((level, blockPos) -> inscriberEntity = (SpellInscriberEntity) level.getBlockEntity(blockPos));
+        inscriberInventory.extractItem(0, 1, false);
+        for (int i = 0; i < 6; i++) {
+            inscriberInventory.extractItem(i, 1, false);
+        }
+    }
+
+    private void RetrieveInscriberBlockEntity()
+    {
+        access.execute(((level, blockPos) -> inscriberEntity = (SpellInscriberEntity) level.getBlockEntity(blockPos)));
     }
 
     @Override
@@ -168,7 +171,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         }
     }
 
-    static class SpellItemSlotHandler extends SlotItemHandler
+    private class SpellItemSlotHandler extends SlotItemHandler
     {
         public SpellItemSlotHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
@@ -178,12 +181,51 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         public boolean mayPlace(ItemStack stack) {
             return stack.is(AuguracyItems.SPELL_SCROLL) || stack.is(AuguracyItems.SPELL_CRYSTAL);
         }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SpellInscriberMenu.this.craft();
+        }
     }
 
-    static class InscriberResultSlotHandler extends SlotItemHandler
+    private class InscriberSlotHandler extends SlotItemHandler
     {
-        public InscriberResultSlotHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+        public InscriberSlotHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return !stack.is(AuguracyItems.SPELL_SCROLL) || !stack.is(AuguracyItems.SPELL_CRYSTAL);
+        }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SpellInscriberMenu.this.craft();
+        }
+    }
+
+    private class InscriberResultSlotHandler extends SlotItemHandler
+    {
+        private Player player;
+
+        public InscriberResultSlotHandler(IItemHandler itemHandler, Player player, int index, int xPosition, int yPosition) {
+            super(itemHandler, index, xPosition, yPosition);
+            this.player = player;
+        }
+
+        @Override
+        protected void checkTakeAchievements(ItemStack stack) {
+            stack.onCraftedBy(player.level(), player, 1);
+        }
+
+        @Override
+        public void onTake(Player player, ItemStack stack) {
+            super.onTake(player, stack);
+            checkTakeAchievements(stack);
+            SpellInscriberMenu.this.consumeCraftingItems();
         }
 
         @Override

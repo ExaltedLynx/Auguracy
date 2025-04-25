@@ -36,10 +36,14 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
         return items;
     }
 
-    private ItemStackHandler getInventory()
+    private final IItemHandler inventory = new ItemStackHandler(items)
     {
-        return new ItemStackHandler(items);
-    }
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            setChanged();
+        }
+    };
 
     @Override
     protected void setItems(NonNullList<ItemStack> items) {
@@ -47,8 +51,8 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return SpellInscriberMenu.createServerMenu(containerId, inventory, getInventory(), ContainerLevelAccess.create(level, getBlockPos()));
+    protected AbstractContainerMenu createMenu(int containerId, Inventory playerInv) {
+        return SpellInscriberMenu.createServerMenu(containerId, playerInv, inventory, ContainerLevelAccess.create(level, getBlockPos()));
     }
 
     @Override
@@ -57,17 +61,29 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     }
 
     @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, provider);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.handleUpdateTag(tag, lookupProvider);
+    }
+
+    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider)
     {
         super.saveAdditional(tag, provider);
-        ContainerHelper.saveAllItems(tag, this.items, provider);
+        ContainerHelper.saveAllItems(tag, items, provider);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider)
     {
         super.loadAdditional(tag, provider);
-        this.items = NonNullList.withSize(INV_SIZE, ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, this.items, provider);
+        //items = NonNullList.withSize(INV_SIZE, ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(tag, items, provider);
     }
 }
