@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
-import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
@@ -40,25 +39,21 @@ public class Spells
                     Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
                     Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress),
                     BlockPos.CODEC.fieldOf("currentBlock").forGetter(DigSpell::getCurrentBlock)
-                )).apply(inst, DigSpell::initDigSpell));
+                )).apply(inst, DigSpell::new));
 
         public DigSpell(String name, ElementType type, int lvlReq, int manaCost)
         {
-            this.name = name;
-            this.type = type;
-            this.lvlReq = lvlReq;
-            this.manaCost = manaCost;
+            super(name, type, lvlReq, manaCost);
         }
 
-        public static DigSpell initDigSpell(String name, ItemStack pickaxe, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
+        public DigSpell(String name, ItemStack pickaxe, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
         {
-            DigSpell spell = (DigSpell) AuguracySpells.getSpellFromName(name);
-            spell.pickaxe = pickaxe;
-            spell.range = range;
-            spell.destroyProgress = destroyProgress;
-            spell.ticksUntilNextProgress = ticksUntilNextProgress;
-            spell.currentBlock = currentBlock;
-            return spell;
+            super(name);
+            this.pickaxe = pickaxe;
+            this.range = range;
+            this.destroyProgress = destroyProgress;
+            this.ticksUntilNextProgress = ticksUntilNextProgress;
+            this.currentBlock = currentBlock;
         }
 
         @Override
@@ -104,6 +99,7 @@ public class Spells
         {
             float blockHardness = blockState.getDestroySpeed(level, currentBlock);
             float breakSpeed = pickaxe.getDestroySpeed(blockState);
+            Auguracy.LOGGER.atDebug().log(pickaxe.getItemName().getString());
             Auguracy.LOGGER.atDebug().log("Break Speed");
             Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
             Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
@@ -161,7 +157,7 @@ public class Spells
 
         public ItemStack getPickaxe()
         {
-            return pickaxe != null ? pickaxe : Items.WOODEN_PICKAXE.getDefaultInstance();
+            return this.pickaxe != null ? this.pickaxe : Items.WOODEN_PICKAXE.getDefaultInstance();
         }
 
         public double getRange()

@@ -29,6 +29,26 @@ public abstract class Spell
         return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName));
     }
 
+    //Anonymous class constructor
+    public Spell() { }
+
+    protected Spell(String name, ElementType type, int lvlReq, int manaCost)
+    {
+        this.name = name;
+        this.type = type;
+        this.lvlReq = lvlReq;
+        this.manaCost = manaCost;
+    }
+
+    protected Spell(String spellName)
+    {
+        Spell spell = AuguracySpells.getSpellFromName(spellName);
+        this.name = spell.name;
+        this.type = spell.type;
+        this.lvlReq = spell.lvlReq;
+        this.manaCost = spell.manaCost;
+    }
+
     public boolean cast(Player caster) {
         boolean casted = false;
         if(canCast(caster))
@@ -49,6 +69,8 @@ public abstract class Spell
     {
         return lvlReq <= caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost <= caster.getData(AuguracyAttachments.MANA).getCurrentMana();
     }
+
+    //protected abstract Spell initSpellInstance(Spell spell);
 
     public String getName() { return name; }
 

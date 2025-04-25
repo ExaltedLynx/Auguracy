@@ -6,7 +6,6 @@ import net.exaltedlynx.auguracy.common.items.SpellItem;
 import net.exaltedlynx.auguracy.common.recipe.SpellInscriberInput;
 import net.exaltedlynx.auguracy.common.recipe.SpellInscriberRecipe;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
-import net.exaltedlynx.auguracy.setup.AuguracyItems;
 import net.exaltedlynx.auguracy.setup.AuguracyMenus;
 import net.exaltedlynx.auguracy.setup.AuguracyRecipes;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -32,6 +31,14 @@ public class SpellInscriberMenu extends AbstractContainerMenu
     private IItemHandler inscriberInventory;
     private SpellInscriberEntity inscriberEntity;
     private SpellInscriberInput inscriberInput;
+
+    private final int INSCRIBER_SPELL_ITEM_SLOT = 0;
+    private final int INSCRIBER_INPUT_SLOTS_END = 5;
+    private final int INSCRIBER_RESULT_SLOT = 6;
+    private final int PLAYER_INV_SLOTS_START = 5;
+    private final int PLAYER_INV_SLOTS_END = 5;
+    private final int HOTBAR_SLOTS_START = 5;
+    private final int HOTBAR_SLOTS_END = 5;
 
     private SpellInscriberMenu(int containerId, Inventory playerInventory, IItemHandler dataInventory, ContainerLevelAccess access)
     {
@@ -66,8 +73,11 @@ public class SpellInscriberMenu extends AbstractContainerMenu
         access.execute((level, blockPos) -> {
             if(level instanceof ServerLevel sLevel)
             {
-                SpellItem spellItem = (SpellItem) inscriberEntity.getItem(0).getItem();
-                List<ItemStack> craftingItems = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1).stream().filter(item -> !item.isEmpty()).toList();
+                ItemStack spellItemStack = inscriberEntity.getItem(INSCRIBER_SPELL_ITEM_SLOT);
+                if(!spellItemStack.isEmpty())
+                {
+                    SpellItem spellItem = (SpellItem) spellItemStack.getItem();
+                    List<ItemStack> craftingItems = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1).stream().filter(item -> !item.isEmpty()).toList();
 
                 /*
                 Auguracy.LOGGER.atDebug().log(spellItem.toString());
@@ -75,27 +85,28 @@ public class SpellInscriberMenu extends AbstractContainerMenu
                     Auguracy.LOGGER.atDebug().log(item.toString());
                  */
 
-                inscriberInput = new SpellInscriberInput(spellItem, craftingItems);
-                Optional<RecipeHolder<SpellInscriberRecipe>> optional = sLevel.recipeAccess().getRecipeFor(
-                        AuguracyRecipes.INSCRIBER_RECIPE_TYPE.get(),
-                        inscriberInput,
-                        level
-                );
-                ItemStack result = optional.map(RecipeHolder::value).map(recipe ->
-                        recipe.assemble(inscriberInput, level.registryAccess())).orElse(ItemStack.EMPTY);
+                    inscriberInput = new SpellInscriberInput(spellItem, craftingItems);
+                    Optional<RecipeHolder<SpellInscriberRecipe>> optional = sLevel.recipeAccess().getRecipeFor(
+                            AuguracyRecipes.INSCRIBER_RECIPE_TYPE.get(),
+                            inscriberInput,
+                            level
+                    );
+                    ItemStack result = optional.map(RecipeHolder::value).map(recipe ->
+                            recipe.assemble(inscriberInput, level.registryAccess())).orElse(ItemStack.EMPTY);
 
-                getSlot(6).set(result);
-                setRemoteSlot(6, result);
-                ServerPlayer sPlayer = (ServerPlayer) player;
-                sPlayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 6, result));
+                    getSlot(INSCRIBER_RESULT_SLOT).set(result);
+                    setRemoteSlot(INSCRIBER_RESULT_SLOT, result);
+                    ServerPlayer sPlayer = (ServerPlayer) player;
+                    sPlayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), INSCRIBER_RESULT_SLOT, result));
+                }
             }
         });
     }
 
     private void consumeCraftingItems()
     {
-        inscriberInventory.extractItem(0, 1, false);
-        for (int i = 0; i < 6; i++) {
+        inscriberInventory.extractItem(INSCRIBER_SPELL_ITEM_SLOT, 1, false);
+        for (int i = 1; i <= INSCRIBER_INPUT_SLOTS_END; i++) {
             inscriberInventory.extractItem(i, 1, false);
         }
     }
@@ -116,7 +127,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
             quickMovedStack = slotItem.copy();
 
             //Quick moving from spell inscriber to player inv
-            if(slotIndex <= 5)
+            if(slotIndex <= INSCRIBER_INPUT_SLOTS_END)
             {
                 if(!this.moveItemStackTo(slotItem, 7, 43, false))
                     return ItemStack.EMPTY;
@@ -179,7 +190,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return stack.is(AuguracyItems.SPELL_SCROLL) || stack.is(AuguracyItems.SPELL_CRYSTAL);
+            return stack.getItem() instanceof SpellItem;
         }
 
         @Override
@@ -197,7 +208,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return !stack.is(AuguracyItems.SPELL_SCROLL) || !stack.is(AuguracyItems.SPELL_CRYSTAL);
+            return !(stack.getItem() instanceof SpellItem);
         }
 
         @Override

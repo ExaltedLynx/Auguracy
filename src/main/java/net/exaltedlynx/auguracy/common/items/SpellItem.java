@@ -4,6 +4,7 @@ import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.network.SyncSpellContainerPacket;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
+import net.exaltedlynx.auguracy.setup.AuguracyItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,7 +23,7 @@ public class SpellItem extends Item implements IItemExtension
 
     public SpellItem(Properties properties, boolean isConsumable)
     {
-        super(properties.stacksTo(1));
+        super(properties);
         this.isConsumable = isConsumable;
     }
 
@@ -42,14 +43,8 @@ public class SpellItem extends Item implements IItemExtension
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
-        if(currentSpell != null)
+        if(player.getItemInHand(hand).is(AuguracyItems.SPELL_SCROLL) && currentSpell != null)
         {
-            /*
-            if(!level.isClientSide)
-            {
-                currentSpell.cast(player);
-            }
-             */
             player.startUsingItem(hand);
             return InteractionResult.CONSUME;
         }

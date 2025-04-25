@@ -8,14 +8,18 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+
+import java.util.Random;
 
 public class SpellInscriberEntity extends BaseContainerBlockEntity
 {
@@ -48,6 +52,24 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
     @Override
     protected void setItems(NonNullList<ItemStack> items) {
         this.items = items;
+    }
+
+    public void dropItems(Level level, BlockPos blockPos)
+    {
+        Random rand = new Random();
+        IItemHandler inv = inventory;
+        for (int i = 0; i < getItems().size() - 1; i++)
+        {
+            ItemStack stack = inv.getStackInSlot(i);
+            if(!stack.isEmpty())
+            {
+                double offsetX = rand.nextDouble(0.1, 0.7);
+                double offsetY = rand.nextDouble(0.1, 0.7);
+                double offsetZ = rand.nextDouble(0.1, 0.7);
+                ItemEntity itemEntity = new ItemEntity(level, blockPos.getX() + offsetX, blockPos.getY() + offsetY, blockPos.getZ() + offsetZ, stack.copy());
+                level.addFreshEntity(itemEntity);
+            }
+        }
     }
 
     @Override

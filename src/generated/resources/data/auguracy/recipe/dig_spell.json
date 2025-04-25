@@ -3,19 +3,5 @@
   "ingredients": [
     "#minecraft:pickaxes"
   ],
-  "spell_to_attach": {
-    "type": "auguracy:dig_spell",
-    "currentBlock": [
-      0,
-      0,
-      0
-    ],
-    "destroy_progress": 0,
-    "pickaxe": {
-      "id": "minecraft:wooden_pickaxe"
-    },
-    "range": 4.5,
-    "spell_name": "Dig",
-    "tunp": 0
-  }
+  "spell_to_attach": "Dig"
 }

@@ -2,6 +2,7 @@ package net.exaltedlynx.auguracy.common.blocks;
 
 import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.common.blocks.blockentities.SpellInscriberEntity;
+import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -34,6 +35,18 @@ public class SpellInscriber extends Block implements EntityBlock
             sPlayer.openMenu(state.getMenuProvider(level, pos));
 
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston)
+    {
+        if(state.getBlock() != newState.getBlock())
+        {
+            level.getBlockEntity(pos, AuguracyBlocks.SPELL_INSCRIBER_ENTITY.get()).ifPresent(inscriber -> {
+                inscriber.dropItems(level, pos);
+                super.onRemove(state, level, pos, newState, movedByPiston);
+            });
+        }
     }
 
     @Override

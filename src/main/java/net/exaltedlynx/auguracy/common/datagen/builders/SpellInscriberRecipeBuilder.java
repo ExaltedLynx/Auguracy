@@ -31,9 +31,9 @@ public class SpellInscriberRecipeBuilder
         return this;
     }
 
-    public SpellInscriberRecipeBuilder setSpellResult(Spell spell)
+    public SpellInscriberRecipeBuilder setSpellResult(Spell spellResult)
     {
-        this.spellResult = spell;
+        this.spellResult = spellResult;
         return this;
     }
 

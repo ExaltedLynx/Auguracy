@@ -1,5 +1,6 @@
 package net.exaltedlynx.auguracy.common.recipe;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
@@ -7,6 +8,7 @@ import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.common.spell.Spells;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyRecipes;
+import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,6 +33,12 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
         this.spellToAttach = spellToAttach;
     }
 
+    public SpellInscriberRecipe(List<Ingredient> ingredients, String spellToAttach)
+    {
+        this.ingredients = ingredients;
+        this.spellToAttach = AuguracySpells.getSpellFromName(spellToAttach);
+    }
+
     @Override
     public boolean matches(SpellInscriberInput input, Level level)
     {
@@ -50,13 +58,14 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
 
     @Override
     public ItemStack assemble(SpellInscriberInput input, HolderLookup.Provider registries) {
-        ItemStack result = input.spellItem().getDefaultInstance();
+        ItemStack result = new ItemStack(input.spellItem());
         if(spellToAttach instanceof Spells.DigSpell digSpell)
         {
             for (var item : input.items())
             {
                 if(item.is(ItemTags.PICKAXES))
                 {
+                    //TODO setting the pickaxe changes every spell item with a dig spell
                     digSpell.setPickaxe(item);
                     result.set(AuguracyDataComponents.SPELL_CONTAINER, new SpellContainer(digSpell));
                 }
@@ -98,14 +107,14 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
     {
         public static final MapCodec<SpellInscriberRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Ingredient.CODEC.listOf(1, 6).fieldOf("ingredients").forGetter(recipe -> recipe.ingredients),
-            Spell.CODEC.fieldOf("spell_to_attach").forGetter(recipe -> recipe.spellToAttach)
+                Codec.STRING.fieldOf("spell_to_attach").forGetter(recipe -> recipe.spellToAttach.getName())
         ).apply(inst, SpellInscriberRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, SpellInscriberRecipe> STREAM_CODEC = StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
             recipe -> recipe.ingredients,
-            ByteBufCodecs.fromCodec(Spell.CODEC),
-            recipe -> recipe.spellToAttach,
+            ByteBufCodecs.STRING_UTF8,
+            recipe -> recipe.spellToAttach.getName(),
             SpellInscriberRecipe::new
         );
 
