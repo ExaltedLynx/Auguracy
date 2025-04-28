@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -213,12 +214,13 @@ public class Spells
         }
 
         @Override
-        public void fromBuffer(RegistryFriendlyByteBuf buffer) {
+        public DigSpell fromBuffer(RegistryFriendlyByteBuf buffer) {
             this.pickaxe = ItemStack.STREAM_CODEC.decode(buffer);
             this.range = buffer.readDouble();
             this.destroyProgress = buffer.readVarInt();
             this.ticksUntilNextProgress = buffer.readVarInt();
             this.currentBlock = BlockPos.STREAM_CODEC.decode(buffer);
+            return this;
         }
 
         @Override
@@ -237,11 +239,18 @@ public class Spells
 
     public static class EmptySpell extends Spell
     {
-        public static final MapCodec<EmptySpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).apply(inst, EmptySpell::new));
+        public static final MapCodec<EmptySpell> CODEC = Spell.createSimpleCodec(EmptySpell::new);
+        public static final StreamCodec<EmptySpell> STREAM_CODEC = Spell.createStreamCodec(EmptySpell::fromBuffer);
 
         public EmptySpell(String name, ElementType type, int lvlReq, int manaCost)
         {
             super(name, type, lvlReq, manaCost);
+        }
+
+        @Override
+        protected EmptySpell fromBuffer(RegistryFriendlyByteBuf buffer)
+        {
+            return this;
         }
 
         @Override
@@ -258,6 +267,12 @@ public class Spells
         @Override
         protected MapCodec<? extends Spell> getCodec() {
             return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ? extends Spell> getStreamCodec()
+        {
+            return STREAM_CODEC;
         }
     }
 }

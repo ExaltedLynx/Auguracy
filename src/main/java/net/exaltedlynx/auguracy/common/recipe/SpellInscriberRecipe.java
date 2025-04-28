@@ -10,7 +10,9 @@ import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyRecipes;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.ItemTags;
@@ -74,7 +76,8 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
         else
             result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), spellToAttach, SpellContainer::setNewSpell);
 
-        return result;
+        result.set(DataComponents.CUSTOM_NAME, Component.literal(spellToAttach.getName()));
+        return result.copy();
     }
 
     @Override

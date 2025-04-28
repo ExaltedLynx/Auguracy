@@ -6,5 +6,5 @@ public interface IExtraSpellData
 {
     void toBuffer(RegistryFriendlyByteBuf buffer);
 
-    void fromBuffer(RegistryFriendlyByteBuf buffer);
+    Spell fromBuffer(RegistryFriendlyByteBuf buffer);
 }
