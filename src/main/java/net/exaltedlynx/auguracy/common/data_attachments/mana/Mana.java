@@ -2,8 +2,12 @@ package net.exaltedlynx.auguracy.common.data_attachments.mana;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
+import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementLevels;
 import net.exaltedlynx.auguracy.common.network.SyncManaPacket;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -19,6 +23,12 @@ public class Mana
                 Codec.INT.fieldOf("max_mana").forGetter(Mana::getMaxMana),
                 Codec.INT.fieldOf("current_mana").forGetter(Mana::getCurrentMana)
         ).apply(inst, Mana::new)
+    );
+
+    public static final StreamCodec<ByteBuf, Mana> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, mana -> mana.currentMana,
+            ByteBufCodecs.VAR_INT, mana -> mana.maxMana,
+            Mana::new
     );
 
     public Mana()

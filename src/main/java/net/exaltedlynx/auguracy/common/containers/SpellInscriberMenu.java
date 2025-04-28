@@ -35,10 +35,10 @@ public class SpellInscriberMenu extends AbstractContainerMenu
     private final int INSCRIBER_SPELL_ITEM_SLOT = 0;
     private final int INSCRIBER_INPUT_SLOTS_END = 5;
     private final int INSCRIBER_RESULT_SLOT = 6;
-    private final int PLAYER_INV_SLOTS_START = 5;
-    private final int PLAYER_INV_SLOTS_END = 5;
-    private final int HOTBAR_SLOTS_START = 5;
-    private final int HOTBAR_SLOTS_END = 5;
+    private final int PLAYER_INV_SLOTS_START = 7;
+    private final int PLAYER_INV_SLOTS_END = 33;
+    private final int HOTBAR_SLOTS_START = 34;
+    private final int HOTBAR_SLOTS_END = 42;
 
     private SpellInscriberMenu(int containerId, Inventory playerInventory, IItemHandler dataInventory, ContainerLevelAccess access)
     {
@@ -78,12 +78,6 @@ public class SpellInscriberMenu extends AbstractContainerMenu
                 {
                     SpellItem spellItem = (SpellItem) spellItemStack.getItem();
                     List<ItemStack> craftingItems = inscriberEntity.getItems().subList(1, inscriberEntity.getItems().size() - 1).stream().filter(item -> !item.isEmpty()).toList();
-
-                /*
-                Auguracy.LOGGER.atDebug().log(spellItem.toString());
-                for(var item : craftingItems)
-                    Auguracy.LOGGER.atDebug().log(item.toString());
-                 */
 
                     inscriberInput = new SpellInscriberInput(spellItem, craftingItems);
                     Optional<RecipeHolder<SpellInscriberRecipe>> optional = sLevel.recipeAccess().getRecipeFor(
@@ -126,31 +120,31 @@ public class SpellInscriberMenu extends AbstractContainerMenu
             ItemStack slotItem = quickMovedSlot.getItem();
             quickMovedStack = slotItem.copy();
 
-            //Quick moving from spell inscriber to player inv
+            //Quick moving from spell inscriber to player inv or hotbar
             if(slotIndex <= INSCRIBER_INPUT_SLOTS_END)
             {
-                if(!this.moveItemStackTo(slotItem, 7, 43, false))
+                if(!this.moveItemStackTo(slotItem, PLAYER_INV_SLOTS_START, HOTBAR_SLOTS_END + 1, false)) //+1 since its endIndex is exclusive
                     return ItemStack.EMPTY;
             }
             //Quick moving from player inv or hotbar
-            else if(slotIndex > 6 && slotIndex < 43)
+            else if(slotIndex > INSCRIBER_RESULT_SLOT && slotIndex < HOTBAR_SLOTS_END + 1)
             {
-                //Try to quick move to inscriber input slots
-                if(!this.moveItemStackTo(slotItem, 0, 6, false))
+                //Try to quick move to inscirber spell item slot or input slots
+                if(!this.moveItemStackTo(slotItem, INSCRIBER_SPELL_ITEM_SLOT, INSCRIBER_INPUT_SLOTS_END + 1, false))
                 {
                     //If can't move item to inscriber, quick move from player inv to hotbar
-                    if(slotIndex < 34)
+                    if(slotIndex < HOTBAR_SLOTS_START)
                     {
-                        if(!this.moveItemStackTo(slotItem, 34, 43, false))
+                        if(!this.moveItemStackTo(slotItem, HOTBAR_SLOTS_START, HOTBAR_SLOTS_END + 1, false))
                             return ItemStack.EMPTY;
                     }
                     //Quick move from hotbar to player inv
-                    else if (!this.moveItemStackTo(slotItem, 7, 34, false))
+                    else if (!this.moveItemStackTo(slotItem, PLAYER_INV_SLOTS_START, PLAYER_INV_SLOTS_END + 1, false))
                         return ItemStack.EMPTY;
                 }
             }
             //Quick moving from result slot to player inv or hotbar
-            else if(this.moveItemStackTo(slotItem, 7, 43, true))
+            else if(this.moveItemStackTo(slotItem, PLAYER_INV_SLOTS_START, HOTBAR_SLOTS_END + 1, true))
                 quickMovedSlot.onQuickCraft(slotItem, quickMovedStack);
             else //Can't quick move stack
                 return ItemStack.EMPTY;

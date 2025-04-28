@@ -17,7 +17,7 @@ public record SyncManaPacket(Mana mana)  implements CustomPacketPayload
     public static final CustomPacketPayload.Type<SyncManaPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "mana"));
 
     public static final StreamCodec<ByteBuf, SyncManaPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.fromCodec(Mana.CODEC),
+            Mana.STREAM_CODEC,
             SyncManaPacket::mana,
             SyncManaPacket::new
     );

@@ -30,22 +30,9 @@ public class AuguracySpells
     public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.CODEC);
 
     //fallback in case a spell is not found
-    public static final Supplier<Spell> EMPTY = registerSpell("empty_spell", () -> new Spell() {
-        { name = "Empty"; type = ElementType.FIRE; lvlReq = 0; manaCost = 1; }
+    public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell( "Empty", ElementType.FIRE, 0, 1), Spell.SIMPLE_CODEC);
 
-        @Override
-        protected boolean onCast(Player caster) {
-                caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
-            return true;
-        }
-
-        @Override
-        protected MapCodec<? extends Spell> getCodec() {
-            return SIMPLE_CODEC;
-        }
-    }, Spell.SIMPLE_CODEC);
-
-    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, MapCodec<S> codec)
+    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, MapCodec<? extends Spell> codec)
     {
         SPELL_TYPES.register(name, () -> codec);
         return SPELLS.register(name, spell);

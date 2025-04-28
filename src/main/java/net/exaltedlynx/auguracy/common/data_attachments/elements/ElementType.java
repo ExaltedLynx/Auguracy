@@ -1,6 +1,9 @@
 package net.exaltedlynx.auguracy.common.data_attachments.elements;
 
-public enum ElementType
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
+
+public enum ElementType implements StringRepresentable
 {
     EARTH,
     FIRE,
@@ -13,5 +16,10 @@ public enum ElementType
     public static ElementType fromInt(int x)
     {
         return VALUES[x];
+    }
+
+    @Override
+    public @NotNull String getSerializedName() {
+        return this.toString();
     }
 }

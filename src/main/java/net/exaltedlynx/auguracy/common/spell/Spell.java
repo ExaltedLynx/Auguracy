@@ -8,29 +8,35 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class Spell
 {
-    protected String name;
-    protected ElementType type;
-    protected int lvlReq;
-    protected int manaCost;
+    protected final String name;
+    protected final ElementType type;
+    protected final int lvlReq;
+    protected final int manaCost;
 
     public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::getCodec, Function.identity());
 
-    public static final MapCodec<Spell> SIMPLE_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-        Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
-    ).apply(inst, AuguracySpells::getSpellFromName));
-
-    protected static <S extends Spell> Products.P1<Mu<S>, String> startSpellCodec(RecordCodecBuilder.Instance<S> instance) {
-        return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName));
+    protected static <S extends Spell> Products.P4<Mu<S>, String, ElementType, Integer, Integer> startSpellCodec(RecordCodecBuilder.Instance<S> instance) {
+        return instance.group(
+                Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name),
+                StringRepresentable.fromEnum(ElementType::values).fieldOf("type").forGetter(spell -> spell.type),
+                Codec.INT.fieldOf("lvl_req").forGetter(spell -> spell.lvlReq),
+                Codec.INT.fieldOf("mana_cost").forGetter(spell -> spell.manaCost)
+        );
     }
 
-    //Anonymous class constructor
-    public Spell() { }
+    public static final StreamCodec<RegistryFriendlyByteBuf, Spell> STREAM_CODEC = StreamCodec.ofMember(Spell::encode, Spell::decode);
 
     protected Spell(String name, ElementType type, int lvlReq, int manaCost)
     {
@@ -49,6 +55,21 @@ public abstract class Spell
         this.manaCost = spell.manaCost;
     }
 
+    private void encode(RegistryFriendlyByteBuf buffer)
+    {
+        buffer.writeUtf(this.name);
+        if(this instanceof IExtraSpellData extraData)
+            extraData.toBuffer(buffer);
+    }
+
+    private static Spell decode(RegistryFriendlyByteBuf buffer)
+    {
+        Spell spell = AuguracySpells.getSpellFromName(buffer.readUtf());
+        if(spell instanceof IExtraSpellData extraData)
+            extraData.fromBuffer(buffer);
+        return spell;
+    }
+
     public boolean cast(Player caster) {
         boolean casted = false;
         if(canCast(caster))
@@ -63,6 +84,8 @@ public abstract class Spell
 
     protected abstract boolean onCast(Player caster);
 
+    public abstract Spell newSpellInstance();
+
     public void onCastRelease(Player caster) { }
 
     private boolean canCast(Player caster)
@@ -70,9 +93,25 @@ public abstract class Spell
         return lvlReq <= caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost <= caster.getData(AuguracyAttachments.MANA).getCurrentMana();
     }
 
-    //protected abstract Spell initSpellInstance(Spell spell);
+    public void addTooltipInfo(Consumer<Component> tooltipAdder)
+    {
+        tooltipAdder.accept(Component.translatable("spell.auguracy.name").append(this.name));
+    }
 
     public String getName() { return name; }
+    public ElementType getType() { return type; }
 
     protected abstract MapCodec<? extends Spell> getCodec();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Spell spell)) return false;
+        return lvlReq == spell.lvlReq && manaCost == spell.manaCost && Objects.equals(name, spell.name) && type == spell.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type, lvlReq, manaCost);
+    }
 }

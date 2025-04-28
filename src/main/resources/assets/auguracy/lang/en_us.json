@@ -7,6 +7,9 @@
   "item.auguracy.spell_scroll": "Spell Scroll",
   "item.auguracy.spell_crystal": "Spell Crystal",
 
+  "spell.auguracy.name": "Spell: ",
+  "spell.auguracy.dig_spell.pickaxe": "Pickaxe: ",
+
   "container.auguracy.inscriber_entity": "Spell Infuser",
   "screen.auguracy.inscriber_screen": "Spell Infuser",
 

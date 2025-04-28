@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.spell.Spell;
-import net.exaltedlynx.auguracy.common.spell.Spells;
+import net.exaltedlynx.auguracy.common.spell.Spells.*;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyRecipes;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
@@ -59,22 +59,22 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
     @Override
     public ItemStack assemble(SpellInscriberInput input, HolderLookup.Provider registries) {
         ItemStack result = new ItemStack(input.spellItem());
-        if(spellToAttach instanceof Spells.DigSpell digSpell)
+        if(spellToAttach instanceof DigSpell digSpell)
         {
             for (var item : input.items())
             {
                 if(item.is(ItemTags.PICKAXES))
                 {
-                    //TODO setting the pickaxe changes every spell item with a dig spell
+                    //Need a deep copy of the data component somehow
                     digSpell.setPickaxe(item);
-                    result.set(AuguracyDataComponents.SPELL_CONTAINER, new SpellContainer(digSpell));
+                    result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), digSpell, SpellContainer::setNewSpell);
                 }
             }
         }
         else
-            result.set(AuguracyDataComponents.SPELL_CONTAINER, new SpellContainer(spellToAttach));
+            result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), spellToAttach, SpellContainer::setNewSpell);
 
-        return result.copy();
+        return result;
     }
 
     @Override

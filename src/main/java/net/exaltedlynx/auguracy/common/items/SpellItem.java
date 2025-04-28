@@ -5,6 +5,7 @@ import net.exaltedlynx.auguracy.common.network.SyncSpellContainerPacket;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -12,9 +13,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.List;
 
 public class SpellItem extends Item implements IItemExtension
 {
@@ -32,7 +36,7 @@ public class SpellItem extends Item implements IItemExtension
     {
         if(!stack.isEmpty() && stack.has(AuguracyDataComponents.SPELL_CONTAINER))
         {
-            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).spell();
+            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
             if(!level.isClientSide)
             {
                 PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
@@ -77,5 +81,12 @@ public class SpellItem extends Item implements IItemExtension
         }
         if(isConsumable)
             stack.consume(1, null);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        SpellContainer spellContainer = stack.get(AuguracyDataComponents.SPELL_CONTAINER);
+        if(spellContainer != null)
+            spellContainer.addToTooltip(context, tooltipComponents::add, tooltipFlag);
     }
 }

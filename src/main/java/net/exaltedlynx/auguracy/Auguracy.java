@@ -38,11 +38,11 @@ public class Auguracy
         modEventBus.addListener(GuiEventHandler::registerScreens);
 
         AuguracyCreativeTab.register(modEventBus);
+        AuguracySpells.register(modEventBus);
         AuguracyDataComponents.register(modEventBus);
         AuguracyAttachments.register(modEventBus);
         AuguracyBlocks.register(modEventBus);
         AuguracyItems.register(modEventBus);
-        AuguracySpells.register(modEventBus);
         AuguracyMenus.register(modEventBus);
         AuguracyRecipes.register(modEventBus);
 

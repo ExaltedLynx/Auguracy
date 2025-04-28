@@ -5,9 +5,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
+import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -22,9 +26,12 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 public class Spells
 {
-    public static class DigSpell extends Spell implements ICorruptable
+    public static class DigSpell extends Spell implements ICorruptable, IExtraSpellData
     {
         private ItemStack pickaxe;
         private double range = 4.5;
@@ -178,6 +185,74 @@ public class Spells
         public BlockPos getCurrentBlock()
         {
             return currentBlock;
+        }
+
+        @Override
+        public void addTooltipInfo(Consumer<Component> tooltipAdder) {
+            super.addTooltipInfo(tooltipAdder);
+            tooltipAdder.accept(Component.translatable("spell.auguracy.dig_spell.pickaxe").append(pickaxe.getItemName()));
+        }
+
+        @Override
+        public Spell newSpellInstance() {
+            return new DigSpell(name, pickaxe, range, destroyProgress, ticksUntilNextProgress, currentBlock);
+        }
+
+        @Override
+        protected MapCodec<? extends Spell> getCodec() {
+            return CODEC;
+        }
+
+        @Override
+        public void toBuffer(RegistryFriendlyByteBuf buffer) {
+            ItemStack.STREAM_CODEC.encode(buffer, this.pickaxe);
+            buffer.writeDouble(this.range);
+            buffer.writeVarInt(this.destroyProgress);
+            buffer.writeVarInt(this.ticksUntilNextProgress);
+            BlockPos.STREAM_CODEC.encode(buffer, this.currentBlock);
+        }
+
+        @Override
+        public void fromBuffer(RegistryFriendlyByteBuf buffer) {
+            this.pickaxe = ItemStack.STREAM_CODEC.decode(buffer);
+            this.range = buffer.readDouble();
+            this.destroyProgress = buffer.readVarInt();
+            this.ticksUntilNextProgress = buffer.readVarInt();
+            this.currentBlock = BlockPos.STREAM_CODEC.decode(buffer);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof DigSpell digSpell)) return false;
+            if (!super.equals(o)) return false;
+            return Double.compare(range, digSpell.range) == 0 && destroyProgress == digSpell.destroyProgress && ticksUntilNextProgress == digSpell.ticksUntilNextProgress && Objects.equals(pickaxe, digSpell.pickaxe) && Objects.equals(currentBlock, digSpell.currentBlock);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), pickaxe, range, destroyProgress, ticksUntilNextProgress, currentBlock);
+        }
+    }
+
+    public static class EmptySpell extends Spell
+    {
+        public static final MapCodec<EmptySpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).apply(inst, EmptySpell::new));
+
+        public EmptySpell(String name, ElementType type, int lvlReq, int manaCost)
+        {
+            super(name, type, lvlReq, manaCost);
+        }
+
+        @Override
+        protected boolean onCast(Player caster) {
+            caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
+            return true;
+        }
+
+        @Override
+        public Spell newSpellInstance() {
+            return new EmptySpell(name, type, lvlReq, manaCost);
         }
 
         @Override

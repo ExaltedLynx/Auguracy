@@ -9,6 +9,8 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,6 +28,11 @@ public class AuguracyRecipeProvider extends RecipeProvider
 				.setSpellResult(AuguracySpells.DIG.get())
 				.addIngredient(tag(ItemTags.PICKAXES))
 				.save(this.output, "dig_spell");
+
+		new SpellInscriberRecipeBuilder(SpellInscriberRecipe::new)
+				.setSpellResult(AuguracySpells.EMPTY.get())
+				.addIngredient(Ingredient.of(Items.APPLE))
+				.save(this.output, "test_spell");
 	}
 
 	public static class Runner extends RecipeProvider.Runner
