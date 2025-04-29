@@ -35,7 +35,7 @@ public class AuguracySpells
     public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.TYPE);
 
     //fallback in case a spell is not found
-    public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell( "Empty", ElementType.FIRE, 0, 1), EmptySpell.TYPE);
+    public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell("Empty", ElementType.FIRE, 0, 1), EmptySpell.TYPE);
 
     private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, SpellType spellType)
     {

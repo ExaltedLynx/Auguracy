@@ -17,6 +17,8 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class Spell
 {
@@ -32,12 +34,9 @@ public abstract class Spell
             .map(AuguracySpells.SPELL_TYPES_REGISTRY::getValue, AuguracySpells.SPELL_TYPES_REGISTRY::getKey)
             .dispatch(Spell::spellType, SpellType::streamCodec);
 
-    protected static <S extends Spell> MapCodec<S> createSimpleCodec(Function4<String, ElementType, Integer, Integer, S> constructor) {
+    protected static <S extends Spell> MapCodec<S> createSimpleCodec(Function<String, S> constructor) {
         return RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name),
-                StringRepresentable.fromEnum(ElementType::values).fieldOf("type").forGetter(spell -> spell.type),
-                Codec.INT.fieldOf("lvl_req").forGetter(spell -> spell.lvlReq),
-                Codec.INT.fieldOf("mana_cost").forGetter(spell -> spell.manaCost)
+                Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name)
         ).apply(inst, constructor));
     }
 
@@ -45,13 +44,10 @@ public abstract class Spell
         return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name));
     }
 
-    protected static <S extends Spell> StreamCodec<RegistryFriendlyByteBuf, S> createSimpleStreamCodec(Function4<String, ElementType, Integer, Integer, S> constructor)
+    protected static <S extends Spell> StreamCodec<RegistryFriendlyByteBuf, S> createSimpleStreamCodec(Function<String, S> constructor)
     {
         return StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, spell -> spell.name,
-                ElementType.STREAM_CODEC, spell -> spell.type,
-                ByteBufCodecs.VAR_INT, spell -> spell.lvlReq,
-                ByteBufCodecs.VAR_INT, spell -> spell.manaCost,
                 constructor
         );
     }

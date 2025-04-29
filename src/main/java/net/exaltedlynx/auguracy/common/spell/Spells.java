@@ -252,6 +252,11 @@ public class Spells
             super(name, type, lvlReq, manaCost);
         }
 
+        public EmptySpell(String name)
+        {
+            super(name);
+        }
+
         @Override
         protected boolean onCast(Player caster) {
             caster.displayClientMessage(Component.literal("This is contains empty spell: Someone made an oopsie"), false);
