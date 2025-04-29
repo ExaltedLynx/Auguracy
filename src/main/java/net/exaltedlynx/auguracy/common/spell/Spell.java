@@ -11,14 +11,12 @@ import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.*;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class Spell
 {
@@ -27,9 +25,12 @@ public abstract class Spell
     protected final int lvlReq;
     protected final int manaCost;
 
-    public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::getCodec, Function.identity());
+    public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::spellType, SpellType::codec);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, Spell> STREAM_CODEC = AuguracySpells.DISPATCH.get();
+    public static final StreamCodec<RegistryFriendlyByteBuf, Spell> STREAM_CODEC = StreamCodec
+            .of(RegistryFriendlyByteBuf::writeResourceLocation, RegistryFriendlyByteBuf::readResourceLocation)
+            .map(AuguracySpells.SPELL_TYPES_REGISTRY::getValue, AuguracySpells.SPELL_TYPES_REGISTRY::getKey)
+            .dispatch(Spell::spellType, SpellType::streamCodec);
 
     protected static <S extends Spell> MapCodec<S> createSimpleCodec(Function4<String, ElementType, Integer, Integer, S> constructor) {
         return RecordCodecBuilder.mapCodec(inst -> inst.group(
@@ -44,9 +45,21 @@ public abstract class Spell
         return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name));
     }
 
-    protected static StreamCodec<RegistryFriendlyByteBuf, ? extends Spell> createStreamCodec(Function<RegistryFriendlyByteBuf, ? extends Spell> decode)
+    protected static <S extends Spell> StreamCodec<RegistryFriendlyByteBuf, S> createSimpleStreamCodec(Function4<String, ElementType, Integer, Integer, S> constructor)
     {
-        return StreamCodec.ofMember(Spell::encode, decode::apply);
+        return StreamCodec.composite(
+                ByteBufCodecs.STRING_UTF8, spell -> spell.name,
+                ElementType.STREAM_CODEC, spell -> spell.type,
+                ByteBufCodecs.VAR_INT, spell -> spell.lvlReq,
+                ByteBufCodecs.VAR_INT, spell -> spell.manaCost,
+                constructor
+        );
+    }
+
+    protected static <S extends Spell & IExtraSpellData<S>> StreamCodec<RegistryFriendlyByteBuf, S> createStreamCodec(
+            StreamMemberEncoder<RegistryFriendlyByteBuf, S> toBuffer, StreamDecoder<RegistryFriendlyByteBuf, S> fromBuffer)
+    {
+        return StreamCodec.ofMember(toBuffer, fromBuffer);
     }
 
     protected Spell(String name, ElementType type, int lvlReq, int manaCost)
@@ -65,21 +78,6 @@ public abstract class Spell
         this.lvlReq = spell.lvlReq;
         this.manaCost = spell.manaCost;
     }
-
-    private void encode(RegistryFriendlyByteBuf buffer)
-    {
-        buffer.writeUtf(this.name);
-        toBuffer(buffer);
-    }
-
-    private static Spell decode(RegistryFriendlyByteBuf buffer)
-    {
-        Spell spell = AuguracySpells.getSpellFromName(buffer.readUtf());
-        return spell.fromBuffer(buffer);
-    }
-
-    protected void toBuffer(RegistryFriendlyByteBuf buffer) { }
-    protected abstract Spell fromBuffer(RegistryFriendlyByteBuf buffer);
 
     public boolean cast(Player caster) {
         boolean casted = false;
@@ -108,10 +106,10 @@ public abstract class Spell
 
     public String getName() { return name; }
     public ElementType getType() { return type; }
+    public int getLvlReq() { return lvlReq; }
+    public int getManaCost() { return manaCost; }
 
-    protected abstract MapCodec<? extends Spell> getCodec();
-
-    protected abstract StreamCodec<RegistryFriendlyByteBuf, ? extends Spell> getStreamCodec();
+    protected abstract SpellType spellType();
 
     public abstract Spell newSpellInstance();
 

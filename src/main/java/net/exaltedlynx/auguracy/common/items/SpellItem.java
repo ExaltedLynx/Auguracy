@@ -1,10 +1,12 @@
 package net.exaltedlynx.auguracy.common.items;
 
+import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.network.SyncSpellContainerPacket;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -62,7 +64,9 @@ public class SpellItem extends Item implements IItemExtension
         {
             if(!level.isClientSide)
             {
-                currentSpell.cast(player);
+                boolean casted = currentSpell.cast(player);
+                if(casted)
+                    player.getData(AuguracyAttachments.MANA).subtract(currentSpell.getManaCost(), player);
             }
         }
     }

@@ -26,7 +26,7 @@ public class SpellContainer implements TooltipProvider
         .apply(inst, SpellContainer::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SpellContainer> STREAM_CODEC = StreamCodec.composite(
-            Spell::getStreamCodec,
+            Spell.STREAM_CODEC,
             container -> container.spell,
             SpellContainer::new
     );

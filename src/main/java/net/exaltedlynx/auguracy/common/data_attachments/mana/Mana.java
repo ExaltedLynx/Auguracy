@@ -26,8 +26,8 @@ public class Mana
     );
 
     public static final StreamCodec<ByteBuf, Mana> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, mana -> mana.currentMana,
             ByteBufCodecs.VAR_INT, mana -> mana.maxMana,
+            ByteBufCodecs.VAR_INT, mana -> mana.currentMana,
             Mana::new
     );
 

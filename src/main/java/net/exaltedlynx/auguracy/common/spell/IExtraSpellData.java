@@ -2,9 +2,11 @@ package net.exaltedlynx.auguracy.common.spell;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
-public interface IExtraSpellData
+public interface IExtraSpellData<S extends Spell>
 {
-    void toBuffer(RegistryFriendlyByteBuf buffer);
+    void toBuffer(RegistryFriendlyByteBuf byteBuf);
 
-    Spell fromBuffer(RegistryFriendlyByteBuf buffer);
+    //S fromBuffer(RegistryFriendlyByteBuf buffer);
+
+
 }

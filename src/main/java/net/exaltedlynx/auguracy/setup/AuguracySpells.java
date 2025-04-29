@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.common.spell.Spell;
+import net.exaltedlynx.auguracy.common.spell.SpellType;
 import net.exaltedlynx.auguracy.common.spell.Spells.*;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,21 +28,18 @@ public class AuguracySpells
     public static final Registry<Spell> SPELL_REGISTRY = new RegistryBuilder<>(SPELL_REGISTRY_KEY).sync(true).create();
     public static final DeferredRegister<Spell> SPELLS = DeferredRegister.create(SPELL_REGISTRY, Auguracy.MODID);
 
-    public static final ResourceKey<Registry<MapCodec<? extends Spell>>> SPELL_TYPES_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spell_types"));
-    public static final Registry<MapCodec<? extends Spell>> SPELL_TYPES_REGISTRY = new RegistryBuilder<>(SPELL_TYPES_KEY).sync(true).create();
-    public static final DeferredRegister<MapCodec<? extends Spell>> SPELL_TYPES = DeferredRegister.create(SPELL_TYPES_REGISTRY, Auguracy.MODID);
+    public static final ResourceKey<Registry<SpellType>> SPELL_TYPES_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "spell_types"));
+    public static final Registry<SpellType> SPELL_TYPES_REGISTRY = new RegistryBuilder<>(SPELL_TYPES_KEY).sync(true).create();
+    public static final DeferredRegister<SpellType> SPELL_TYPES = DeferredRegister.create(SPELL_TYPES_REGISTRY, Auguracy.MODID);
 
-    public static final BiMap<ResourceLocation, StreamCodec<? super RegistryFriendlyByteBuf, ? extends Spell>> DISPATCH = HashBiMap.create();
-
-    public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.CODEC);
+    public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.TYPE);
 
     //fallback in case a spell is not found
-    public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell( "Empty", ElementType.FIRE, 0, 1), EmptySpell.CODEC);
+    public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell( "Empty", ElementType.FIRE, 0, 1), EmptySpell.TYPE);
 
-    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, MapCodec<S> codec, StreamCodec<RegistryFriendlyByteBuf, S> streamCodec)
+    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, SpellType spellType)
     {
-        SPELL_TYPES.register(name, () -> codec);
-        DISPATCH.put(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, name), streamCodec);
+        SPELL_TYPES.register(name, () -> spellType);
         return SPELLS.register(name, spell);
     }
 

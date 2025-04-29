@@ -10,10 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 public class Spells
 {
-    public static class DigSpell extends Spell implements ICorruptable, IExtraSpellData
+    public static class DigSpell extends Spell implements ICorruptable, IExtraSpellData<DigSpell>
     {
         private ItemStack pickaxe;
         private double range = 4.5;
@@ -40,14 +40,17 @@ public class Spells
         private int ticksUntilNextProgress;
         private BlockPos currentBlock = BlockPos.ZERO;
 
-        public static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
+        private static final MapCodec<DigSpell> CODEC = RecordCodecBuilder.mapCodec(inst -> Spell.startSpellCodec(inst).and(
                 inst.group(
                     ItemStack.SINGLE_ITEM_CODEC.fieldOf("pickaxe").forGetter(DigSpell::getPickaxe),
                     Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
                     Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
                     Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress),
                     BlockPos.CODEC.fieldOf("currentBlock").forGetter(DigSpell::getCurrentBlock)
-                )).apply(inst, DigSpell::new));
+                )).apply(inst, DigSpell::new)
+        );
+        private static final StreamCodec<RegistryFriendlyByteBuf, DigSpell> STREAM_CODEC = createStreamCodec(DigSpell::toBuffer, DigSpell::fromBuffer);
+        public static final SpellType TYPE = new SpellType(CODEC, STREAM_CODEC);
 
         public DigSpell(String name, ElementType type, int lvlReq, int manaCost)
         {
@@ -195,13 +198,13 @@ public class Spells
         }
 
         @Override
-        public Spell newSpellInstance() {
-            return new DigSpell(name, pickaxe, range, destroyProgress, ticksUntilNextProgress, currentBlock);
+        protected SpellType spellType() {
+            return TYPE;
         }
 
         @Override
-        protected MapCodec<? extends Spell> getCodec() {
-            return CODEC;
+        public Spell newSpellInstance() {
+            return new DigSpell(name, pickaxe, range, destroyProgress, ticksUntilNextProgress, currentBlock);
         }
 
         @Override
@@ -213,14 +216,15 @@ public class Spells
             BlockPos.STREAM_CODEC.encode(buffer, this.currentBlock);
         }
 
-        @Override
-        public DigSpell fromBuffer(RegistryFriendlyByteBuf buffer) {
-            this.pickaxe = ItemStack.STREAM_CODEC.decode(buffer);
-            this.range = buffer.readDouble();
-            this.destroyProgress = buffer.readVarInt();
-            this.ticksUntilNextProgress = buffer.readVarInt();
-            this.currentBlock = BlockPos.STREAM_CODEC.decode(buffer);
-            return this;
+
+        public static DigSpell fromBuffer(RegistryFriendlyByteBuf buffer) {
+            DigSpell spell = (DigSpell) buffer.registryAccess().lookupOrThrow(AuguracySpells.SPELL_REGISTRY_KEY).get(ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "dig_spell")).get().value();
+            spell.pickaxe = ItemStack.STREAM_CODEC.decode(buffer);
+            spell.range = buffer.readDouble();
+            spell.destroyProgress = buffer.readVarInt();
+            spell.ticksUntilNextProgress = buffer.readVarInt();
+            spell.currentBlock = BlockPos.STREAM_CODEC.decode(buffer);
+            return spell;
         }
 
         @Override
@@ -240,17 +244,12 @@ public class Spells
     public static class EmptySpell extends Spell
     {
         public static final MapCodec<EmptySpell> CODEC = Spell.createSimpleCodec(EmptySpell::new);
-        public static final StreamCodec<EmptySpell> STREAM_CODEC = Spell.createStreamCodec(EmptySpell::fromBuffer);
+        public static final StreamCodec<RegistryFriendlyByteBuf, EmptySpell> STREAM_CODEC = Spell.createSimpleStreamCodec(EmptySpell::new);
+        public static final SpellType TYPE = new SpellType(CODEC, STREAM_CODEC);
 
         public EmptySpell(String name, ElementType type, int lvlReq, int manaCost)
         {
             super(name, type, lvlReq, manaCost);
-        }
-
-        @Override
-        protected EmptySpell fromBuffer(RegistryFriendlyByteBuf buffer)
-        {
-            return this;
         }
 
         @Override
@@ -260,19 +259,13 @@ public class Spells
         }
 
         @Override
+        protected SpellType spellType() {
+            return TYPE;
+        }
+
+        @Override
         public Spell newSpellInstance() {
             return new EmptySpell(name, type, lvlReq, manaCost);
-        }
-
-        @Override
-        protected MapCodec<? extends Spell> getCodec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ? extends Spell> getStreamCodec()
-        {
-            return STREAM_CODEC;
         }
     }
 }
