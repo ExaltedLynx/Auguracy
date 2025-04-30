@@ -2,13 +2,10 @@ package net.exaltedlynx.auguracy.common.items;
 
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
-import net.exaltedlynx.auguracy.common.network.SyncSpellContainerPacket;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,19 +15,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
 public class SpellItem extends Item implements IItemExtension
 {
     private Spell currentSpell;
-    boolean isConsumable;
+    boolean consumedOnUse;
 
     public SpellItem(Properties properties, boolean isConsumable)
     {
         super(properties);
-        this.isConsumable = isConsumable;
+        this.consumedOnUse = isConsumable;
     }
 
     @Override
@@ -39,10 +35,6 @@ public class SpellItem extends Item implements IItemExtension
         if(!stack.isEmpty() && stack.has(AuguracyDataComponents.SPELL_CONTAINER))
         {
             currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
-            if(!level.isClientSide)
-            {
-                PacketDistributor.sendToPlayer((ServerPlayer) player, new SyncSpellContainerPacket(SpellContainer.EMPTY.get(), stack));
-            }
         }
     }
 
@@ -72,19 +64,19 @@ public class SpellItem extends Item implements IItemExtension
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return Integer.MAX_VALUE;
-    }
-
-    @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count)
     {
         if(entity instanceof Player player && !player.level().isClientSide)
         {
             currentSpell.onCastRelease(player);
         }
-        if(isConsumable)
+        if(consumedOnUse)
             stack.consume(1, null);
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return Integer.MAX_VALUE;
     }
 
     @Override
@@ -92,5 +84,14 @@ public class SpellItem extends Item implements IItemExtension
         SpellContainer spellContainer = stack.get(AuguracyDataComponents.SPELL_CONTAINER);
         if(spellContainer != null)
             spellContainer.addToTooltip(context, tooltipComponents::add, tooltipFlag);
+    }
+
+    @Override
+    public void verifyComponentsAfterLoad(ItemStack stack) {
+        super.verifyComponentsAfterLoad(stack);
+        if(stack.has(AuguracyDataComponents.SPELL_CONTAINER))
+        {
+            currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
+        }
     }
 }

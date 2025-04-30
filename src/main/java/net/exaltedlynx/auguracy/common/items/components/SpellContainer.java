@@ -3,7 +3,6 @@ package net.exaltedlynx.auguracy.common.items.components;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.common.spell.Spell;
-import net.exaltedlynx.auguracy.common.spell.Spells;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -33,13 +32,12 @@ public class SpellContainer implements TooltipProvider
 
     private SpellContainer(Spell spell)
     {
-
         this.spell = spell.newSpellInstance();
     }
 
     public SpellContainer setNewSpell(Spell spell)
     {
-        return new SpellContainer(spell);
+        return new SpellContainer(spell.newSpellInstance());
     }
 
     public Spell getSpell()

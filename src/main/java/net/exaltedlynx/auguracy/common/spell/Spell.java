@@ -1,7 +1,6 @@
 package net.exaltedlynx.auguracy.common.spell;
 
 import com.mojang.datafixers.Products;
-import com.mojang.datafixers.util.Function4;
 import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -12,13 +11,11 @@ import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.*;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class Spell
 {
@@ -27,7 +24,7 @@ public abstract class Spell
     protected final int lvlReq;
     protected final int manaCost;
 
-    public static Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::spellType, SpellType::codec);
+    public static final Codec<Spell> CODEC = AuguracySpells.SPELL_TYPES_REGISTRY.byNameCodec().dispatch(Spell::spellType, SpellType::codec);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Spell> STREAM_CODEC = StreamCodec
             .of(RegistryFriendlyByteBuf::writeResourceLocation, RegistryFriendlyByteBuf::readResourceLocation)
@@ -36,12 +33,12 @@ public abstract class Spell
 
     protected static <S extends Spell> MapCodec<S> createSimpleCodec(Function<String, S> constructor) {
         return RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name)
+                Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName)
         ).apply(inst, constructor));
     }
 
     protected static <S extends Spell> Products.P1<Mu<S>, String> startSpellCodec(RecordCodecBuilder.Instance<S> instance) {
-        return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(spell -> spell.name));
+        return instance.group(Codec.STRING.fieldOf("spell_name").forGetter(Spell::getName));
     }
 
     protected static <S extends Spell> StreamCodec<RegistryFriendlyByteBuf, S> createSimpleStreamCodec(Function<String, S> constructor)
@@ -52,10 +49,10 @@ public abstract class Spell
         );
     }
 
-    protected static <S extends Spell & IExtraSpellData<S>> StreamCodec<RegistryFriendlyByteBuf, S> createStreamCodec(
-            StreamMemberEncoder<RegistryFriendlyByteBuf, S> toBuffer, StreamDecoder<RegistryFriendlyByteBuf, S> fromBuffer)
+    protected static <S extends Spell> StreamCodec<RegistryFriendlyByteBuf, S> createStreamCodec(
+            StreamEncoder<RegistryFriendlyByteBuf, S> toBuffer, StreamDecoder<RegistryFriendlyByteBuf, S> fromBuffer)
     {
-        return StreamCodec.ofMember(toBuffer, fromBuffer);
+        return StreamCodec.of(toBuffer, fromBuffer);
     }
 
     protected Spell(String name, ElementType type, int lvlReq, int manaCost)
@@ -108,6 +105,8 @@ public abstract class Spell
     protected abstract SpellType spellType();
 
     public abstract Spell newSpellInstance();
+
+    //public abstract ResourceLocation registryKey();
 
 	@Override
     public boolean equals(Object o) {

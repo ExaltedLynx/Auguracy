@@ -1,20 +1,13 @@
 package net.exaltedlynx.auguracy.setup;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.mojang.serialization.MapCodec;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.common.spell.SpellType;
 import net.exaltedlynx.auguracy.common.spell.Spells.*;
 import net.minecraft.core.Registry;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -37,9 +30,9 @@ public class AuguracySpells
     //fallback in case a spell is not found
     public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell("Empty", ElementType.FIRE, 0, 1), EmptySpell.TYPE);
 
-    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, SpellType spellType)
+    private static <S extends Spell> Supplier<S> registerSpell(String name, Supplier<S> spell, SpellType type)
     {
-        SPELL_TYPES.register(name, () -> spellType);
+        SPELL_TYPES.register(name, () -> type);
         return SPELLS.register(name, spell);
     }
 
