@@ -35,7 +35,7 @@ public class Spells
     {
         private ItemStack pickaxe;
         private double range = 4.5;
-        private int destroyProgress;
+        private float destroyProgress;
         private int ticksUntilNextProgress;
         private BlockPos currentBlock = BlockPos.ZERO;
 
@@ -43,7 +43,7 @@ public class Spells
                 inst.group(
                     ItemStack.SINGLE_ITEM_CODEC.fieldOf("pickaxe").forGetter(digSpell -> digSpell.pickaxe),
                     Codec.DOUBLE.fieldOf("range").forGetter(DigSpell::getRange),
-                    Codec.INT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
+                    Codec.FLOAT.fieldOf("destroy_progress").forGetter(DigSpell::getDestroyProgress),
                     Codec.INT.fieldOf("tunp").forGetter(DigSpell::getTicksUntilNextProgress),
                     BlockPos.CODEC.fieldOf("currentBlock").forGetter(DigSpell::getCurrentBlock)
                 )).apply(inst, DigSpell::new)
@@ -56,7 +56,7 @@ public class Spells
             super(name, type, lvlReq, manaCost);
         }
 
-        public DigSpell(String name, ItemStack pickaxe, double range, int destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
+        public DigSpell(String name, ItemStack pickaxe, double range, float destroyProgress, int ticksUntilNextProgress, BlockPos currentBlock)
         {
             super(name);
             this.pickaxe = pickaxe;
@@ -105,11 +105,9 @@ public class Spells
             resetBlockDestroyProgress(caster.level(), (ServerPlayer) caster);
         }
 
-        //credit to Create mod
+        //credit to the Create team
         private boolean handleBlockMining(Level level, ServerPlayer sPlayer, BlockState blockState, BlockHitResult blockHitResult)
         {
-            Auguracy.LOGGER.atDebug().log(String.valueOf(ticksUntilNextProgress));
-
             if (ticksUntilNextProgress < 0)
                 return false;
             if (ticksUntilNextProgress-- > 0)
@@ -117,9 +115,9 @@ public class Spells
 
             float blockHardness = blockState.getDestroySpeed(level, currentBlock);
             float breakSpeed = pickaxe.getDestroySpeed(blockState);
-            Auguracy.LOGGER.atDebug().log("Break Speed");
-            Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
-            Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
+            //Auguracy.LOGGER.atDebug().log("Break Speed");
+            //Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
+            //Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
 
             if(!BlockHelpers.canBreak(blockState, blockHardness))
             {
@@ -133,30 +131,35 @@ public class Spells
                 return false;
             }
 
-            //TODO fix break speed being a bit faster than a normal pickaxe, also add right tool level for drop check
-            int i = BlockHelpers.isItemProperToolForBlock(pickaxe, blockState) ? 30 : 100;
-            destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness / i), 1, 10 - destroyProgress);
+            boolean canToolMineBlock = BlockHelpers.isItemProperToolForBlock(pickaxe, blockState);
+            Auguracy.LOGGER.atDebug().log(String.valueOf(canToolMineBlock));
+            int i = canToolMineBlock ? 30 : 100;
+            destroyProgress += (breakSpeed / blockHardness / i) * 10.0f;
+            int destroyStage = Mth.floor(destroyProgress);
+            destroyStage = Mth.clamp(destroyStage, 0, 10);
 
-            Auguracy.LOGGER.atDebug().log("Destroy Progress");
-            Auguracy.LOGGER.atDebug().log(String.valueOf(breakSpeed / blockHardness / (float) i));
-            Auguracy.LOGGER.atDebug().log(String.valueOf(destroyProgress));
+            //Auguracy.LOGGER.atDebug().log("Destroy Progress");
+            //Auguracy.LOGGER.atDebug().log(String.valueOf((breakSpeed / blockHardness / i)));
+            //Auguracy.LOGGER.atDebug().log(String.valueOf(destroyProgress));
+            //Auguracy.LOGGER.atDebug().log(String.valueOf(destroyStage));
 
             //cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
             ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
             particleEngine.addBlockHitEffects(currentBlock, blockHitResult);
 
             if (destroyProgress >= 10) {
-                level.destroyBlock(currentBlock, true, sPlayer);
+                blockState.getBlock().playerWillDestroy(level, currentBlock, blockState, sPlayer);
+                BlockHelpers.playerDestroy(level, sPlayer, currentBlock, blockState, null, pickaxe);
+                level.destroyBlock(currentBlock, false, sPlayer);
                 resetBlockDestroyProgress(level, sPlayer);
                 ticksUntilNextProgress = 6;
                 return true;
             }
 
-            ticksUntilNextProgress = (int) (blockHardness / breakSpeed);
-            Auguracy.LOGGER.atDebug().log(String.valueOf(ticksUntilNextProgress));
+            ticksUntilNextProgress = (int) (breakSpeed / blockHardness / i);
 
-            level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyProgress);
-            sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, destroyProgress));
+            level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyStage);
+            sPlayer.connection.send(new ClientboundBlockDestructionPacket(sPlayer.getId(), currentBlock, destroyStage));
             return false;
         }
 
@@ -171,7 +174,7 @@ public class Spells
         public static void toBuffer(RegistryFriendlyByteBuf buffer, DigSpell spell) {
             ItemStack.STREAM_CODEC.encode(buffer, spell.pickaxe);
             buffer.writeDouble(spell.range);
-            buffer.writeVarInt(spell.destroyProgress);
+            buffer.writeFloat(spell.destroyProgress);
             buffer.writeVarInt(spell.ticksUntilNextProgress);
             BlockPos.STREAM_CODEC.encode(buffer, spell.currentBlock);
         }
@@ -180,7 +183,7 @@ public class Spells
             DigSpell spell = AuguracySpells.DIG.get();
             spell.pickaxe = ItemStack.STREAM_CODEC.decode(buffer);
             spell.range = buffer.readDouble();
-            spell.destroyProgress = buffer.readVarInt();
+            spell.destroyProgress = buffer.readFloat();
             spell.ticksUntilNextProgress = buffer.readVarInt();
             spell.currentBlock = BlockPos.STREAM_CODEC.decode(buffer);
             return spell;
@@ -201,7 +204,7 @@ public class Spells
             return range;
         }
 
-        public int getDestroyProgress()
+        public float getDestroyProgress()
         {
             return destroyProgress;
         }

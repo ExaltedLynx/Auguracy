@@ -1,7 +1,6 @@
 package net.exaltedlynx.auguracy;
 
 import net.exaltedlynx.auguracy.client.gui.GuiEventHandler;
-import net.exaltedlynx.auguracy.client.input.ClientInputHandler;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -15,7 +14,6 @@ public class AuguracyClient
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event)
     {
-        NeoForge.EVENT_BUS.register(ClientInputHandler.class);
         NeoForge.EVENT_BUS.addListener(GuiEventHandler::onPlayerInventoryGuiInit);
     }
 }

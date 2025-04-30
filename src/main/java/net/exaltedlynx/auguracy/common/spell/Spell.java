@@ -81,6 +81,9 @@ public abstract class Spell
             else
                 casted = onCast(caster);
         }
+        if(casted)
+            caster.getData(AuguracyAttachments.MANA).subtract(manaCost, caster);
+
         return casted;
     }
 

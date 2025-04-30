@@ -1,6 +1,5 @@
 package net.exaltedlynx.auguracy.common.items;
 
-import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
@@ -33,25 +32,8 @@ public class SpellItem extends Item implements IItemExtension
     public void onCraftedBy(ItemStack stack, Level level, Player player)
     {
         if(!stack.isEmpty() && stack.has(AuguracyDataComponents.SPELL_CONTAINER))
-        {
             currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
-        }
     }
-
-
-    /*
-    @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand)
-    {
-        if(currentSpell != null && player.getItemInHand(hand).is(AuguracyItems.SPELL_SCROLL) && !level.isClientSide)
-        {
-            boolean casted = currentSpell.cast(player);
-            if(casted)
-                player.getData(AuguracyAttachments.MANA).subtract(currentSpell.getManaCost(), player);
-        }
-        return InteractionResult.PASS;
-    }
-     */
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
@@ -70,11 +52,7 @@ public class SpellItem extends Item implements IItemExtension
         if(livingEntity instanceof Player player)
         {
             if(!level.isClientSide)
-            {
-                boolean casted = currentSpell.cast(player);
-                if(casted)
-                    player.getData(AuguracyAttachments.MANA).subtract(currentSpell.getManaCost(), player);
-            }
+                currentSpell.cast(player);
         }
     }
 

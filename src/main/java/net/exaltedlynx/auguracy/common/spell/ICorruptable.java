@@ -6,5 +6,5 @@ public interface ICorruptable
 {
     boolean corrupted = false;
     boolean corruptedCast(Player caster);
-    default boolean isCorrupted() {return corrupted; }
+    default boolean isCorrupted() { return corrupted; }
 }
