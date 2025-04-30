@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
+import net.exaltedlynx.auguracy.common.util.BlockHelpers;
 import net.exaltedlynx.auguracy.setup.AuguracySpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
@@ -66,8 +67,8 @@ public class Spells
         }
 
         @Override
-        protected boolean onCast(Player caster) {
-
+        protected boolean onCast(Player caster)
+        {
             Level level = caster.level();
             Vec3 playerEyePos = caster.getEyePosition();
             Vec3 viewDirection = playerEyePos.add(caster.calculateViewVector(caster.getXRot(), caster.getYRot()).scale(range));
@@ -104,32 +105,40 @@ public class Spells
             resetBlockDestroyProgress(caster.level(), (ServerPlayer) caster);
         }
 
+        //credit to Create mod
         private boolean handleBlockMining(Level level, ServerPlayer sPlayer, BlockState blockState, BlockHitResult blockHitResult)
         {
-            float blockHardness = blockState.getDestroySpeed(level, currentBlock);
-            float breakSpeed = pickaxe.getDestroySpeed(blockState);
-            Auguracy.LOGGER.atDebug().log(pickaxe.getItemName().getString());
-            Auguracy.LOGGER.atDebug().log("Break Speed");
-            Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
-            Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
+            Auguracy.LOGGER.atDebug().log(String.valueOf(ticksUntilNextProgress));
 
-            //credit to Create mod
             if (ticksUntilNextProgress < 0)
                 return false;
             if (ticksUntilNextProgress-- > 0)
                 return false;
 
-            var event = CommonHooks.fireBlockBreak(level, sPlayer.gameMode.getGameModeForPlayer(), sPlayer, currentBlock, blockState);
-            if (event.isCanceled())
+            float blockHardness = blockState.getDestroySpeed(level, currentBlock);
+            float breakSpeed = pickaxe.getDestroySpeed(blockState);
+            Auguracy.LOGGER.atDebug().log("Break Speed");
+            Auguracy.LOGGER.atDebug().log("Block: " + blockHardness);
+            Auguracy.LOGGER.atDebug().log("Tool: " + breakSpeed);
+
+            if(!BlockHelpers.canBreak(blockState, blockHardness))
             {
+                if(destroyProgress != 0)
+                    resetBlockDestroyProgress(level, sPlayer);
+            }
+
+            var event = CommonHooks.fireBlockBreak(level, sPlayer.gameMode.getGameModeForPlayer(), sPlayer, currentBlock, blockState);
+            if (event.isCanceled()) {
                 resetBlockDestroyProgress(level, sPlayer);
                 return false;
             }
 
-            int i = net.neoforged.neoforge.event.EventHooks.doPlayerHarvestCheck(sPlayer, blockState, level, currentBlock) ? 30 : 100;
+            //TODO fix break speed being a bit faster than a normal pickaxe, also add right tool level for drop check
+            int i = BlockHelpers.isItemProperToolForBlock(pickaxe, blockState) ? 30 : 100;
             destroyProgress += Mth.clamp((int) (breakSpeed / blockHardness / i), 1, 10 - destroyProgress);
+
             Auguracy.LOGGER.atDebug().log("Destroy Progress");
-            Auguracy.LOGGER.atDebug().log(String.valueOf(breakSpeed / blockHardness / i));
+            Auguracy.LOGGER.atDebug().log(String.valueOf(breakSpeed / blockHardness / (float) i));
             Auguracy.LOGGER.atDebug().log(String.valueOf(destroyProgress));
 
             //cLevel.playSound(sPlayer, currentBlock, blockState.getSoundType(level, currentBlock, sPlayer).getHitSound(), SoundSource.BLOCKS);
@@ -142,8 +151,8 @@ public class Spells
                 ticksUntilNextProgress = 6;
                 return true;
             }
-            Auguracy.LOGGER.atDebug().log(String.valueOf((blockHardness / breakSpeed)));
-            ticksUntilNextProgress = (int) Mth.clamp(blockHardness / breakSpeed, 0, blockHardness / breakSpeed);
+
+            ticksUntilNextProgress = (int) (blockHardness / breakSpeed);
             Auguracy.LOGGER.atDebug().log(String.valueOf(ticksUntilNextProgress));
 
             level.destroyBlockProgress(sPlayer.getId(), currentBlock, destroyProgress);

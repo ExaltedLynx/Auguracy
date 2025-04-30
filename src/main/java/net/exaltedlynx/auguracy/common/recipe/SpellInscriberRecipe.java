@@ -61,23 +61,22 @@ public class SpellInscriberRecipe implements Recipe<SpellInscriberInput>
     @Override
     public ItemStack assemble(SpellInscriberInput input, HolderLookup.Provider registries) {
         ItemStack result = input.spellItem().getDefaultInstance();
-        if(spellToAttach instanceof DigSpell)
+        if(spellToAttach instanceof DigSpell digSpell)
         {
             for (var item : input.items())
             {
                 if(item.is(ItemTags.PICKAXES))
                 {
-                    DigSpell digSpell = (DigSpell) spellToAttach.newSpellInstance();
                     digSpell.setPickaxe(item);
                     result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), digSpell, SpellContainer::setNewSpell);
                 }
             }
         }
         else
-            result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), spellToAttach.newSpellInstance(), SpellContainer::setNewSpell);
+            result.update(AuguracyDataComponents.SPELL_CONTAINER, SpellContainer.EMPTY.get(), spellToAttach, SpellContainer::setNewSpell);
 
         result.set(DataComponents.CUSTOM_NAME, Component.literal(spellToAttach.getName()));
-        return result;
+        return result.copy();
     }
 
     @Override

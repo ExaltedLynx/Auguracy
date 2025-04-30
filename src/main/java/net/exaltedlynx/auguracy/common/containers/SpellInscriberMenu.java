@@ -28,7 +28,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
     public static final int INV_SIZE = 7;
     private final ContainerLevelAccess access;
     private final Player player;
-    private IItemHandler inscriberInventory;
+    private final IItemHandler inscriberInventory;
     private SpellInscriberEntity inscriberEntity;
     private SpellInscriberInput inscriberInput;
 

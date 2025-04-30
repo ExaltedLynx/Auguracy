@@ -23,10 +23,10 @@ public class SpellItem extends Item implements IItemExtension
     private Spell currentSpell;
     boolean consumedOnUse;
 
-    public SpellItem(Properties properties, boolean isConsumable)
+    public SpellItem(Properties properties, boolean consumedOnUse)
     {
         super(properties);
-        this.consumedOnUse = isConsumable;
+        this.consumedOnUse = consumedOnUse;
     }
 
     @Override
@@ -37,6 +37,21 @@ public class SpellItem extends Item implements IItemExtension
             currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
         }
     }
+
+
+    /*
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand)
+    {
+        if(currentSpell != null && player.getItemInHand(hand).is(AuguracyItems.SPELL_SCROLL) && !level.isClientSide)
+        {
+            boolean casted = currentSpell.cast(player);
+            if(casted)
+                player.getData(AuguracyAttachments.MANA).subtract(currentSpell.getManaCost(), player);
+        }
+        return InteractionResult.PASS;
+    }
+     */
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
@@ -67,9 +82,8 @@ public class SpellItem extends Item implements IItemExtension
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count)
     {
         if(entity instanceof Player player && !player.level().isClientSide)
-        {
             currentSpell.onCastRelease(player);
-        }
+
         if(consumedOnUse)
             stack.consume(1, null);
     }
@@ -90,8 +104,6 @@ public class SpellItem extends Item implements IItemExtension
     public void verifyComponentsAfterLoad(ItemStack stack) {
         super.verifyComponentsAfterLoad(stack);
         if(stack.has(AuguracyDataComponents.SPELL_CONTAINER))
-        {
             currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
-        }
     }
 }

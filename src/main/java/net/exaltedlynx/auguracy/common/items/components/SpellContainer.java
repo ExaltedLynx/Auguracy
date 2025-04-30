@@ -37,7 +37,7 @@ public class SpellContainer implements TooltipProvider
 
     public SpellContainer setNewSpell(Spell spell)
     {
-        return new SpellContainer(spell.newSpellInstance());
+        return new SpellContainer(spell);
     }
 
     public Spell getSpell()

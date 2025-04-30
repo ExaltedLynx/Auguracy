@@ -25,7 +25,7 @@ public class AuguracySpells
     public static final Registry<SpellType> SPELL_TYPES_REGISTRY = new RegistryBuilder<>(SPELL_TYPES_KEY).sync(true).create();
     public static final DeferredRegister<SpellType> SPELL_TYPES = DeferredRegister.create(SPELL_TYPES_REGISTRY, Auguracy.MODID);
 
-    public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 1, 2), DigSpell.TYPE);
+    public static final Supplier<DigSpell> DIG = registerSpell("dig_spell", () -> new DigSpell("Dig", ElementType.EARTH, 0, 2), DigSpell.TYPE);
 
     //fallback in case a spell is not found
     public static final Supplier<EmptySpell> EMPTY = registerSpell("empty_spell", () -> new EmptySpell("Empty", ElementType.FIRE, 0, 1), EmptySpell.TYPE);
