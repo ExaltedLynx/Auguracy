@@ -13,5 +13,6 @@ public class AuguracyDatagen
     {
         event.createProvider(AuguracyModelProvider::new);
         event.createProvider(AuguracyRecipeProvider.Runner::new);
+        event.createBlockAndItemTags(AuguracyTagsProvider.Blocks::new, AuguracyTagsProvider.Items::new);
     }
 }

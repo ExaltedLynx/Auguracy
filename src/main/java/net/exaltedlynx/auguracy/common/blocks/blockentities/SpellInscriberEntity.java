@@ -23,8 +23,7 @@ import java.util.Random;
 
 public class SpellInscriberEntity extends BaseContainerBlockEntity
 {
-    public static final int INV_SIZE = 7;
-    private NonNullList<ItemStack> items = NonNullList.withSize(INV_SIZE, ItemStack.EMPTY);
+    private NonNullList<ItemStack> items = NonNullList.withSize(SpellInscriberMenu.INV_SIZE, ItemStack.EMPTY);
 
     public SpellInscriberEntity(BlockPos pos, BlockState blockState) {
         super(AuguracyBlocks.SPELL_INSCRIBER_ENTITY.get(), pos, blockState);
@@ -79,7 +78,7 @@ public class SpellInscriberEntity extends BaseContainerBlockEntity
 
     @Override
     public int getContainerSize() {
-        return INV_SIZE;
+        return SpellInscriberMenu.INV_SIZE;
     }
 
     @Override

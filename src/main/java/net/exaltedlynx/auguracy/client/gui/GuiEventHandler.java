@@ -1,10 +1,12 @@
 package net.exaltedlynx.auguracy.client.gui;
 
+import net.exaltedlynx.auguracy.client.gui.hud.ElementsGui;
+import net.exaltedlynx.auguracy.client.gui.hud.ManaBar;
 import net.exaltedlynx.auguracy.client.gui.screens.SpellInscriberScreen;
+import net.exaltedlynx.auguracy.client.gui.screens.WandScreen;
 import net.exaltedlynx.auguracy.setup.AuguracyMenus;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
@@ -29,5 +31,6 @@ public class GuiEventHandler
     public static void registerScreens(RegisterMenuScreensEvent event)
     {
         event.register(AuguracyMenus.SPELL_INSCRIBER_MENU.get(), SpellInscriberScreen::new);
+        event.register(AuguracyMenus.WAND_MENU.get(), WandScreen::new);
     }
 }

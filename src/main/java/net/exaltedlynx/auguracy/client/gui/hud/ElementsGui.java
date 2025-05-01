@@ -1,4 +1,4 @@
-package net.exaltedlynx.auguracy.client.gui;
+package net.exaltedlynx.auguracy.client.gui.hud;
 
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.data_attachments.AuguracyAttachments;

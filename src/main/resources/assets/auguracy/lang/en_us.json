@@ -12,6 +12,8 @@
 
   "container.auguracy.inscriber_entity": "Spell Infuser",
   "screen.auguracy.inscriber_screen": "Spell Infuser",
+  "container.auguracy.wand": "Wand",
+  "screen.auguracy.wand_screen": "Wand Inventory",
 
   "auguracy.creativetab": "Auguracy"
 }
