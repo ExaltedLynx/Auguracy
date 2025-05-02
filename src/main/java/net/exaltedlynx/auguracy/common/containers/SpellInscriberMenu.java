@@ -129,7 +129,7 @@ public class SpellInscriberMenu extends AbstractContainerMenu
             //Quick moving from player inv or hotbar
             else if(slotIndex > INSCRIBER_RESULT_SLOT && slotIndex < HOTBAR_SLOTS_END + 1)
             {
-                //Try to quick move to inscirber spell item slot or input slots
+                //Try to quick move to inscriber spell item slot or input slots
                 if(!this.moveItemStackTo(slotItem, INSCRIBER_SPELL_ITEM_SLOT, INSCRIBER_INPUT_SLOTS_END + 1, false))
                 {
                     //If can't move item to inscriber, quick move from player inv to hotbar

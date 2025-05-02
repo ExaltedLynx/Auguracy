@@ -23,7 +23,19 @@ public class DivineWand extends Item implements IItemExtension
         super(properties);
     }
 
-    private final IItemHandler inventory = new ItemStackHandler(items);
+    private final IItemHandler inventory = new ItemStackHandler(items)
+    {
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            //save to item with nbt
+        }
+
+        @Override
+        protected int getStackLimit(int slot, ItemStack stack) {
+            return 1;
+        }
+    };
 
 	@Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)

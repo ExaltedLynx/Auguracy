@@ -2,6 +2,7 @@ package net.exaltedlynx.auguracy.client.gui;
 
 import net.exaltedlynx.auguracy.client.gui.hud.ElementsGui;
 import net.exaltedlynx.auguracy.client.gui.hud.ManaBar;
+import net.exaltedlynx.auguracy.client.gui.hud.SpellSelector;
 import net.exaltedlynx.auguracy.client.gui.screens.SpellInscriberScreen;
 import net.exaltedlynx.auguracy.client.gui.screens.WandScreen;
 import net.exaltedlynx.auguracy.setup.AuguracyMenus;
@@ -26,6 +27,7 @@ public class GuiEventHandler
     public static void registerHUDOverlays(RegisterGuiLayersEvent event)
     {
         event.registerBelow(VanillaGuiLayers.HOTBAR, ManaBar.MANA_BAR, ManaBar::renderManaBar);
+        event.registerBelow(VanillaGuiLayers.HOTBAR, SpellSelector.SPELL_SELECTOR, SpellSelector::renderSpellSelector);
     }
 
     public static void registerScreens(RegisterMenuScreensEvent event)
