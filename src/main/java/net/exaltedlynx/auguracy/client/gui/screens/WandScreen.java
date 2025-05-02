@@ -42,5 +42,9 @@ public class WandScreen extends AbstractContainerScreen<WandMenu>
 		graphics.blit(RenderType::guiTextured, TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 	}
 
-
+	@Override
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY)
+	{
+		//super.renderLabels(guiGraphics, mouseX, mouseY);
+	}
 }

@@ -134,8 +134,7 @@ public class Spells
             boolean canToolMineBlock = BlockHelpers.isItemProperToolForBlock(pickaxe, blockState);
             int i = canToolMineBlock ? 30 : 100;
             destroyProgress += (breakSpeed / blockHardness / i) * 10.0f;
-            int destroyStage = Mth.floor(destroyProgress);
-            destroyStage = Mth.clamp(destroyStage, 0, 10);
+            int destroyStage = Mth.clamp(Mth.floor(destroyProgress), 0, 10);
 
             //Auguracy.LOGGER.atDebug().log("Destroy Progress");
             //Auguracy.LOGGER.atDebug().log(String.valueOf((breakSpeed / blockHardness / i)));

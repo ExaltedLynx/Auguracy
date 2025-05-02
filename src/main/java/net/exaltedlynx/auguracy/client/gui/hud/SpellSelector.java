@@ -2,14 +2,18 @@ package net.exaltedlynx.auguracy.client.gui.hud;
 
 import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.containers.WandMenu;
+import net.exaltedlynx.auguracy.common.items.DivineWand;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class SpellSelector
 {
@@ -31,7 +35,17 @@ public class SpellSelector
 			//render hud
 			graphics.blit(RenderType::guiTextured, TEXTURE, xPos, yPos, 0, 0, HUD_WIDTH, HUD_HEIGHT, 256, 256);
 			//render items inside wand on top
+			DivineWand wand = (DivineWand) stack.getItem();
+			ItemStackHandler wandInv = wand.getInventory();
 
+			for(int i = 0; i < wandInv.getSlots(); i++) {
+				ItemStack item = wandInv.getStackInSlot(i);
+				if(!item.isEmpty())
+				{
+					int itemOffset = (20 * i) + 3;
+					graphics.renderItem(item, xPos + itemOffset, yPos + 3);
+				}
+			}
 			//render selector (defaults to first slot)
 			int selectedSpellSlot = WandMenu.getSelectedSlot();
 			int selectorOffset = 20 * selectedSpellSlot;
