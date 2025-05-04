@@ -1,11 +1,11 @@
 package net.exaltedlynx.auguracy.common.items;
 
+import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.containers.WandMenu;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,45 +16,37 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ComponentItemHandler;
 
 public class DivineWand extends Item implements IItemExtension
 {
-    private NonNullList<ItemStack> items = NonNullList.withSize(WandMenu.INV_SIZE, ItemStack.EMPTY);
     private Spell currentSpell;
 
+    public static final ItemCapability<ComponentItemHandler, Void> WAND_ITEM_HANDLER = ItemCapability.createVoid(
+            ResourceLocation.fromNamespaceAndPath(Auguracy.MODID, "wand_item_handler"),
+            ComponentItemHandler.class
+    );
+
     public DivineWand(Properties properties) {
-        super(properties.stacksTo(1));
+        super(properties.stacksTo(1).component(AuguracyDataComponents.WAND_ITEM_HANDLER, ItemContainerContents.EMPTY));
     }
-
-    private final ItemStackHandler inventory = new ItemStackHandler(items)
-    {
-        @Override
-        protected void onContentsChanged(int slot) {
-            super.onContentsChanged(slot);
-        }
-
-        @Override
-        protected int getStackLimit(int slot, ItemStack stack) {
-            return 1;
-        }
-    };
 
 	@Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
         if(!level.isClientSide && player instanceof ServerPlayer sPlayer)
         {
+            var items = player.getItemInHand(hand).getCapability(WAND_ITEM_HANDLER, null);
             if(player.isShiftKeyDown())
             {
                 sPlayer.openMenu(new SimpleMenuProvider((containerId, playerInventory, _player) ->
-                        WandMenu.createServerMenu(containerId, playerInventory, inventory), Component.translatable("container.auguracy.wand")));
+                        WandMenu.createServerMenu(containerId, playerInventory, items), Component.translatable("container.auguracy.wand")));
             }
             else
             {
-                currentSpell = items.get(WandMenu.getSelectedSlot()).get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
+                currentSpell = items.getStackInSlot(WandMenu.getSelectedSlot()).get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
                 player.startUsingItem(hand);
                 return InteractionResult.CONSUME;
             }
@@ -82,10 +74,5 @@ public class DivineWand extends Item implements IItemExtension
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return Integer.MAX_VALUE;
-    }
-
-    public ItemStackHandler getInventory()
-    {
-        return inventory;
     }
 }

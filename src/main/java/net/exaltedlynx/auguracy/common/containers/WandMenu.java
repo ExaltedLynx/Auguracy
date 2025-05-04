@@ -8,8 +8,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class WandMenu extends AbstractContainerMenu
 {
@@ -67,7 +67,7 @@ public class WandMenu extends AbstractContainerMenu
 	{
 		ItemStack quickMovedStack = ItemStack.EMPTY;
 		Slot quickMovedSlot = this.slots.get(slotIndex);
-		if(quickMovedSlot != null && quickMovedSlot.hasItem())
+		if(quickMovedSlot.hasItem())
 		{
 			ItemStack slotItem = quickMovedSlot.getItem();
 			quickMovedStack = slotItem.copy();
@@ -118,7 +118,7 @@ public class WandMenu extends AbstractContainerMenu
 
 	public static int getSelectedSlot() { return selectedSlot; }
 
-	private static class SpellCrystalSlotHandler extends SlotItemHandler
+	private static class SpellCrystalSlotHandler extends ItemHandlerCopySlot
 	{
 		public SpellCrystalSlotHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
 			super(itemHandler, index, xPosition, yPosition);
