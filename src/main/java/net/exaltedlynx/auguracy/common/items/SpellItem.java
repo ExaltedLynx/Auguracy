@@ -41,9 +41,8 @@ public class SpellItem extends Item implements IItemExtension
         if(player.getItemInHand(hand).is(AuguracyItems.SPELL_SCROLL) && currentSpell != null)
         {
             player.startUsingItem(hand);
-            return InteractionResult.CONSUME;
         }
-        return InteractionResult.PASS;
+        return InteractionResult.CONSUME;
     }
 
     @Override

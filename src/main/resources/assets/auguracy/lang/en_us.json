@@ -15,5 +15,7 @@
   "container.auguracy.wand": "Wand",
   "screen.auguracy.wand_screen": "Wand Inventory",
 
-  "auguracy.creativetab": "Auguracy"
+  "auguracy.creativetab": "Auguracy",
+
+  "tooltip.auguracy.more_info": "Hold Shift for spell info"
 }

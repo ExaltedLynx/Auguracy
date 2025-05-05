@@ -95,10 +95,7 @@ public abstract class Spell
         return lvlReq <= caster.getData(AuguracyAttachments.ELEMENT_LEVELS).getLevel(type) && manaCost <= caster.getData(AuguracyAttachments.MANA).getCurrentMana();
     }
 
-    public void addTooltipInfo(Consumer<Component> tooltipAdder)
-    {
-        tooltipAdder.accept(Component.translatable("spell.auguracy.name").append(this.name));
-    }
+    public void addTooltipInfo(Consumer<Component> tooltipAdder) { }
 
     public String getName() { return name; }
     public ElementType getType() { return type; }
@@ -108,8 +105,6 @@ public abstract class Spell
     protected abstract SpellType spellType();
 
     public abstract Spell newSpellInstance();
-
-    //public abstract ResourceLocation registryKey();
 
 	@Override
     public boolean equals(Object o) {
