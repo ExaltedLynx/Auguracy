@@ -6,6 +6,7 @@ import net.exaltedlynx.auguracy.common.data_attachments.elements.ElementType;
 import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 import net.neoforged.neoforge.items.ComponentItemHandler;
@@ -38,22 +40,23 @@ public class DivineWand extends Item implements IItemExtension
         super(properties.stacksTo(1).component(AuguracyDataComponents.WAND_ITEM_HANDLER, ItemContainerContents.EMPTY));
     }
 
-	@Override
+    @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand)
     {
         if(!level.isClientSide && player instanceof ServerPlayer sPlayer)
         {
             var items = player.getItemInHand(hand).getCapability(WAND_ITEM_HANDLER, null);
-            if(player.isCrouching())
-            {
-                sPlayer.openMenu(new SimpleMenuProvider((containerId, playerInventory, _player) ->
-                        WandMenu.createServerMenu(containerId, playerInventory, items), Component.translatable("container.auguracy.wand")));
-            }
-            else
+
+            if(!player.isCrouching())
             {
                 currentSpell = items.getStackInSlot(WandMenu.getSelectedSlot()).get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
                 player.startUsingItem(hand);
                 return InteractionResult.CONSUME;
+            }
+            else
+            {
+                sPlayer.openMenu(new SimpleMenuProvider((containerId, playerInventory, _player) ->
+                        WandMenu.createServerMenu(containerId, playerInventory, items), Component.translatable("container.auguracy.wand")));
             }
         }
         return InteractionResult.PASS;
@@ -104,4 +107,8 @@ public class DivineWand extends Item implements IItemExtension
             tooltipComponents.add(Component.translatable("tooltip.auguracy.more_info").withColor(0xFFEE8C));
     }
 
+    @Override
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
+        return true;
+    }
 }

@@ -4,6 +4,7 @@ import net.exaltedlynx.auguracy.common.items.components.SpellContainer;
 import net.exaltedlynx.auguracy.common.spell.Spell;
 import net.exaltedlynx.auguracy.setup.AuguracyDataComponents;
 import net.exaltedlynx.auguracy.setup.AuguracyItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 
 import java.util.List;
@@ -82,5 +84,10 @@ public class SpellItem extends Item implements IItemExtension
         super.verifyComponentsAfterLoad(stack);
         if(stack.has(AuguracyDataComponents.SPELL_CONTAINER))
             currentSpell = stack.get(AuguracyDataComponents.SPELL_CONTAINER).getSpell();
+    }
+
+    @Override
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
+        return true;
     }
 }

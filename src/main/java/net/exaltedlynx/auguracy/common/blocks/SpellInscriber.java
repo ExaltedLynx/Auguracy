@@ -1,6 +1,7 @@
 package net.exaltedlynx.auguracy.common.blocks;
 
 import com.mojang.serialization.MapCodec;
+import net.exaltedlynx.auguracy.Auguracy;
 import net.exaltedlynx.auguracy.common.blocks.blockentities.SpellInscriberEntity;
 import net.exaltedlynx.auguracy.setup.AuguracyBlocks;
 import net.minecraft.core.BlockPos;
@@ -31,6 +32,7 @@ public class SpellInscriber extends Block implements EntityBlock
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        Auguracy.LOGGER.atDebug().log("reached menu");
         if(!level.isClientSide && player instanceof ServerPlayer sPlayer)
             sPlayer.openMenu(state.getMenuProvider(level, pos));
 
